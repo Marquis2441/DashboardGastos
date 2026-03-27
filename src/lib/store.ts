@@ -126,6 +126,7 @@ interface AppState {
   expenses: Expense[];
   addExpense: (expense: Omit<Expense, "id" | "createdAt" | "auditTrail" | "attachments"> & { attachments?: Attachment[] }) => void;
   updateExpenseStatus: (expenseId: string, newStatus: PaymentStatus) => void;
+  bulkUpdateExpenseStatus: (expenseIds: string[], newStatus: PaymentStatus) => void;
   getExpensesByFirm: (lawFirmId: string) => Expense[];
   getExpensesByFirmAndSegment: (lawFirmId: string, segment: Segment) => Expense[];
   getExpensesByFirmAndType: (lawFirmId: string, expenseType: ExpenseType) => Expense[];
@@ -223,9 +224,7 @@ export const useAppStore = create<AppState>()(
       },
 
       updateExpenseStatus: (expenseId: string, newStatus: PaymentStatus) => {
-        const user = get().currentUser;
-        if (!user) return;
-
+        const user = get().currentUser || { id: "u0", name: "Usuario" }; // Fallback minimal
         const timestamp = new Date().toISOString();
 
         set((state) => ({
@@ -234,6 +233,31 @@ export const useAppStore = create<AppState>()(
             const auditEntry: AuditEntry = {
               id: `at${Date.now()}`,
               action: "Estado cambiado",
+              previousValue: exp.status,
+              newValue: newStatus,
+              userId: user.id,
+              userName: user.name,
+              timestamp,
+            };
+            return {
+              ...exp,
+              status: newStatus,
+              auditTrail: [...exp.auditTrail, auditEntry],
+            };
+          }),
+        }));
+      },
+
+      bulkUpdateExpenseStatus: (expenseIds: string[], newStatus: PaymentStatus) => {
+        const user = get().currentUser || { id: "u0", name: "Usuario" };
+        const timestamp = new Date().toISOString();
+
+        set((state) => ({
+          expenses: state.expenses.map((exp) => {
+            if (!expenseIds.includes(exp.id)) return exp;
+            const auditEntry: AuditEntry = {
+              id: `at_bulk_${Date.now()}_${exp.id}`,
+              action: "Estado cambiado (Lote)",
               previousValue: exp.status,
               newValue: newStatus,
               userId: user.id,

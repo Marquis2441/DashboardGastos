@@ -33,19 +33,33 @@ import {
   Users,
   Briefcase,
   Clock,
+  CheckCircle2,
+  XCircle,
+  FileDown,
 } from "lucide-react";
 import type { PaymentStatus, Segment, ExpenseType } from "@/lib/types";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function GastosPage() {
   const lawFirms = useAppStore((s) => s.lawFirms);
   const expenses = useAppStore((s) => s.expenses);
   const users = useAppStore((s) => s.users);
   const currentUser = useAppStore((s) => s.currentUser);
+  const bulkUpdateExpenseStatus = useAppStore((s) => s.bulkUpdateExpenseStatus);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filterFirm, setFilterFirm] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterSegment, setFilterSegment] = useState<string>("all");
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const fmt = (val: number) => `$${val.toLocaleString("es-AR")}`;
 
@@ -73,6 +87,39 @@ export default function GastosPage() {
   });
 
   const totalFiltered = filteredExpenses.reduce((acc, e) => acc + e.amount, 0);
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === filteredExpenses.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filteredExpenses.map(e => e.id));
+    }
+  };
+
+  const toggleSelectOne = (id: string) => {
+    setSelectedIds(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
+  const handleBulkStatusUpdate = (newStatus: PaymentStatus) => {
+    if (selectedIds.length === 0) return;
+    
+    bulkUpdateExpenseStatus(selectedIds, newStatus);
+    toast.success(`Cambiado estado a "${newStatus}"`, {
+      description: `Se han actualizado ${selectedIds.length} gastos correctamente.`
+    });
+    setSelectedIds([]);
+  };
+
+  const getStatusIcon = (status: PaymentStatus) => {
+    switch (status) {
+      case "Pagado": return <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />;
+      case "Rechazado": return <XCircle className="w-3.5 h-3.5 text-rose-500" />;
+      case "Facturado": return <FileDown className="w-3.5 h-3.5 text-blue-500" />;
+      default: return <Clock className="w-3.5 h-3.5 text-amber-500" />;
+    }
+  };
 
   return (
     <AppShell>
@@ -138,6 +185,7 @@ export default function GastosPage() {
                   <SelectItem value="" className="cursor-pointer">Todos los estados</SelectItem>
                   <SelectItem value="Ingresado" className="cursor-pointer">Ingresado</SelectItem>
                   <SelectItem value="En Proceso de Pago" className="cursor-pointer">En Proceso de Pago</SelectItem>
+                  <SelectItem value="Facturado" className="cursor-pointer">Facturado</SelectItem>
                   <SelectItem value="Pagado" className="cursor-pointer">Pagado</SelectItem>
                   <SelectItem value="Rechazado" className="cursor-pointer">Rechazado</SelectItem>
                 </SelectContent>
@@ -162,9 +210,51 @@ export default function GastosPage() {
             </div>
 
             <div className="flex items-center justify-between mt-4 pt-4 border-t border-border/50">
-              <p className="text-sm text-muted-foreground">
-                {filteredExpenses.length} gastos encontrados
-              </p>
+              <div className="flex items-center gap-4">
+                <p className="text-sm text-muted-foreground">
+                  {filteredExpenses.length} gastos encontrados
+                </p>
+                {selectedIds.length > 0 && (
+                  <div className="flex items-center gap-3 animate-in fade-in slide-in-from-left-2">
+                    <div className="h-4 w-[1px] bg-border" />
+                    <span className="text-sm font-medium text-primary">
+                      {selectedIds.length} seleccionados
+                    </span>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger>
+                        <Button size="sm" variant="outline" className="h-8 gap-2 border-primary/20 bg-primary/5 hover:bg-primary/10 text-primary">
+                          Acción por Lote
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start" className="w-48">
+                        <DropdownMenuItem onClick={() => handleBulkStatusUpdate("Ingresado")} className="cursor-pointer gap-2">
+                          <Clock className="w-4 h-4 text-slate-400" /> Marcar como Ingresado
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleBulkStatusUpdate("En Proceso de Pago")} className="cursor-pointer gap-2">
+                          <Clock className="w-4 h-4 text-amber-500" /> En Proceso de Pago
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleBulkStatusUpdate("Facturado")} className="cursor-pointer gap-2">
+                          <FileDown className="w-4 h-4 text-blue-500" /> Marcar como Facturado
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleBulkStatusUpdate("Pagado")} className="cursor-pointer gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Marcar como Pagado
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleBulkStatusUpdate("Rechazado")} className="cursor-pointer gap-2 text-rose-600 focus:text-rose-600">
+                          <XCircle className="w-4 h-4" /> Rechazar todos
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      onClick={() => setSelectedIds([])}
+                      className="h-8 text-[10px] uppercase font-bold tracking-widest text-muted-foreground hover:text-rose-500"
+                    >
+                      Limpiar
+                    </Button>
+                  </div>
+                )}
+              </div>
               <p className="text-sm font-semibold">
                 Total: {fmt(totalFiltered)}
               </p>
@@ -178,6 +268,12 @@ export default function GastosPage() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-[40px]">
+                    <Checkbox 
+                      checked={selectedIds.length === filteredExpenses.length && filteredExpenses.length > 0}
+                      onChange={() => toggleSelectAll()}
+                    />
+                  </TableHead>
                   <TableHead>Fecha</TableHead>
                   <TableHead>Proforma</TableHead>
                   <TableHead>Estudio</TableHead>
@@ -203,7 +299,13 @@ export default function GastosPage() {
                     const creator = users.find((u) => u.id === exp.createdBy);
 
                     return (
-                      <TableRow key={exp.id}>
+                      <TableRow key={exp.id} className={selectedIds.includes(exp.id) ? "bg-primary/5 border-primary/20" : ""}>
+                        <TableCell>
+                          <Checkbox 
+                            checked={selectedIds.includes(exp.id)}
+                            onChange={() => toggleSelectOne(exp.id)}
+                          />
+                        </TableCell>
                         <TableCell className="text-sm whitespace-nowrap">{exp.date}</TableCell>
                         <TableCell className="text-sm font-bold text-primary">#{exp.proformaNum}</TableCell>
                         <TableCell>

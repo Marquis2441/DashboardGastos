@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Building2, Loader2, ShieldCheck, Eye, EyeOff } from "lucide-react";
+import { BrandLogo } from "@/components/brand-logo";
 
 export default function LoginPage() {
   const login = useAppStore((s) => s.login);
@@ -44,9 +45,7 @@ export default function LoginPage() {
       {/* Navigation Header */}
       <header className="relative z-20 flex items-center justify-between p-6 lg:px-12 bg-transparent">
         <div className="flex items-center gap-2 group cursor-pointer">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center transform group-hover:rotate-12 transition-transform shadow-md">
-            <Building2 className="w-5 h-5 text-white" />
-          </div>
+          <BrandLogo />
           <div className="text-2xl tracking-tighter font-roboto">
             <span className="font-extrabold text-slate-950">crezca</span>
             <span className="font-light text-primary">webs</span>

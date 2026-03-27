@@ -21,6 +21,7 @@ import {
   ChevronDown,
   History,
   ArrowRight,
+  FileDown,
 } from "lucide-react";
 
 const STATUS_CONFIG: Record<PaymentStatus, { icon: React.ElementType; className: string }> = {
@@ -40,11 +41,16 @@ const STATUS_CONFIG: Record<PaymentStatus, { icon: React.ElementType; className:
     icon: XCircle,
     className: "bg-red-500/15 text-red-400 border-red-500/20 hover:bg-red-500/25",
   },
+  Facturado: {
+    icon: FileDown,
+    className: "bg-blue-600/15 text-blue-600 border-blue-600/20 hover:bg-blue-600/25",
+  },
 };
 
 const ALL_STATUSES: PaymentStatus[] = [
   "Ingresado",
   "En Proceso de Pago",
+  "Facturado",
   "Pagado",
   "Rechazado",
 ];
