@@ -91,7 +91,7 @@ export default function MedicionesPage() {
                   <Wallet className="w-4 h-4 text-blue-500" />
                 </div>
               </div>
-              <p className="text-2xl font-black text-slate-900">{fmt(totalSpent)}</p>
+              <p className="text-xl md:text-2xl font-black text-slate-900">{fmt(totalSpent)}</p>
               <div className="flex items-center gap-1 mt-2">
                 <TrendingUp className="w-3 h-3 text-emerald-500" />
                 <span className="text-[10px] font-bold text-emerald-500">+12.5% vs mes anterior</span>
@@ -107,7 +107,7 @@ export default function MedicionesPage() {
                   <Landmark className="w-4 h-4 text-emerald-500" />
                 </div>
               </div>
-              <p className="text-2xl font-black text-slate-900">{fmt(avgExpense)}</p>
+              <p className="text-xl md:text-2xl font-black text-slate-900">{fmt(avgExpense)}</p>
               <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-tight">Costo promedio por trámite</p>
             </CardContent>
           </Card>
@@ -120,7 +120,7 @@ export default function MedicionesPage() {
                   <Users className="w-4 h-4 text-amber-500" />
                 </div>
               </div>
-              <p className="text-2xl font-black text-slate-900">{expenses.length}</p>
+              <p className="text-xl md:text-2xl font-black text-slate-900">{expenses.length}</p>
               <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-tight">Gastos registrados a la fecha</p>
             </CardContent>
           </Card>
@@ -246,7 +246,7 @@ export default function MedicionesPage() {
               <CardTitle className="text-sm font-bold text-slate-800 uppercase tracking-tight">Análisis Comparativo</CardTitle>
             </CardHeader>
             <CardContent className="flex items-center justify-center p-8">
-                <div className="grid grid-cols-2 gap-4 w-full">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
                     {lawFirmData.map((firm) => (
                         <div key={firm.name} className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{firm.name}</p>

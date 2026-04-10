@@ -138,7 +138,7 @@ export default function GastosPage() {
               <Filter className="w-4 h-4" />
               Filtros
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="relative">
                 <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -209,21 +209,21 @@ export default function GastosPage() {
               </Select>
             </div>
 
-            <div className="flex items-center justify-between mt-4 pt-4 border-t border-border/50">
-              <div className="flex items-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center justify-between mt-4 pt-4 border-t border-border/50 gap-4 sm:gap-0">
+              <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto">
                 <p className="text-sm text-muted-foreground">
                   {filteredExpenses.length} gastos encontrados
                 </p>
                 {selectedIds.length > 0 && (
                   <div className="flex items-center gap-3 animate-in fade-in slide-in-from-left-2">
-                    <div className="h-4 w-[1px] bg-border" />
+                    <div className="hidden sm:block h-4 w-[1px] bg-border" />
                     <span className="text-sm font-medium text-primary">
-                      {selectedIds.length} seleccionados
+                      {selectedIds.length} <span className="hidden sm:inline">seleccionados</span>
                     </span>
                     <DropdownMenu>
                       <DropdownMenuTrigger>
                         <Button size="sm" variant="outline" className="h-8 gap-2 border-primary/20 bg-primary/5 hover:bg-primary/10 text-primary">
-                          Acción por Lote
+                          Acción <span className="hidden sm:inline">por Lote</span>
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="start" className="w-48">
@@ -255,7 +255,7 @@ export default function GastosPage() {
                   </div>
                 )}
               </div>
-              <p className="text-sm font-semibold">
+              <p className="text-sm font-semibold w-full sm:w-auto text-right">
                 Total: {fmt(totalFiltered)}
               </p>
             </div>
@@ -265,107 +265,109 @@ export default function GastosPage() {
         {/* Table */}
         <Card className="border-border/50">
           <CardContent className="pt-6">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[40px]">
-                    <Checkbox 
-                      checked={selectedIds.length === filteredExpenses.length && filteredExpenses.length > 0}
-                      onChange={() => toggleSelectAll()}
-                    />
-                  </TableHead>
-                  <TableHead>Fecha</TableHead>
-                  <TableHead>Proforma</TableHead>
-                  <TableHead>Estudio</TableHead>
-                  <TableHead>Segmento</TableHead>
-                  <TableHead>Motivo</TableHead>
-                  <TableHead>Descripción</TableHead>
-                  <TableHead className="text-right">Monto</TableHead>
-                  <TableHead>Estado</TableHead>
-                  <TableHead>Archivos</TableHead>
-                  <TableHead>Creado por</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredExpenses.length === 0 ? (
+            <div className="overflow-x-auto rounded-xl">
+              <Table>
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={10} className="text-center py-12 text-muted-foreground">
-                      No se encontraron gastos con los filtros aplicados.
-                    </TableCell>
+                    <TableHead className="w-[40px]">
+                      <Checkbox 
+                        checked={selectedIds.length === filteredExpenses.length && filteredExpenses.length > 0}
+                        onChange={() => toggleSelectAll()}
+                      />
+                    </TableHead>
+                    <TableHead>Fecha</TableHead>
+                    <TableHead>Proforma</TableHead>
+                    <TableHead>Estudio</TableHead>
+                    <TableHead>Segmento</TableHead>
+                    <TableHead>Motivo</TableHead>
+                    <TableHead>Descripción</TableHead>
+                    <TableHead className="text-right">Monto</TableHead>
+                    <TableHead>Estado</TableHead>
+                    <TableHead>Archivos</TableHead>
+                    <TableHead>Creado por</TableHead>
                   </TableRow>
-                ) : (
-                  filteredExpenses.map((exp) => {
-                    const firm = lawFirms.find((lf) => lf.id === exp.lawFirmId);
-                    const creator = users.find((u) => u.id === exp.createdBy);
+                </TableHeader>
+                <TableBody>
+                  {filteredExpenses.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={10} className="text-center py-12 text-muted-foreground">
+                        No se encontraron gastos con los filtros aplicados.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    filteredExpenses.map((exp) => {
+                      const firm = lawFirms.find((lf) => lf.id === exp.lawFirmId);
+                      const creator = users.find((u) => u.id === exp.createdBy);
 
-                    return (
-                      <TableRow key={exp.id} className={selectedIds.includes(exp.id) ? "bg-primary/5 border-primary/20" : ""}>
-                        <TableCell>
-                          <Checkbox 
-                            checked={selectedIds.includes(exp.id)}
-                            onChange={() => toggleSelectOne(exp.id)}
-                          />
-                        </TableCell>
-                        <TableCell className="text-sm whitespace-nowrap">{exp.date}</TableCell>
-                        <TableCell className="text-sm font-bold text-primary">#{exp.proformaNum}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <div
-                              className="w-6 h-6 rounded-md flex items-center justify-center shrink-0"
-                              style={{ backgroundColor: `${firm?.color || "#888"}20` }}
-                            >
-                              <Building2 className="w-3 h-3" style={{ color: firm?.color || "#888" }} />
-                            </div>
-                            <span className="text-sm font-medium">{firm?.name}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className="text-xs gap-1">
-                            {exp.segment === "Personas" ? (
-                              <Users className="w-3 h-3" />
-                            ) : (
-                              <Briefcase className="w-3 h-3" />
-                            )}
-                            {exp.segment}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-sm">{exp.expenseType}</TableCell>
-                        <TableCell className="text-sm text-muted-foreground max-w-[200px] truncate">
-                          {exp.description || "—"}
-                        </TableCell>
-                        <TableCell className="text-right font-semibold">{fmt(exp.amount)}</TableCell>
-                        <TableCell>
-                          <PaymentStatusDropdown 
-                            expenseId={exp.id} 
-                            currentStatus={exp.status} 
-                            auditTrail={exp.auditTrail}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex gap-1">
-                            {exp.attachments.map((att) => (
-                              <div key={att.id} title={att.name}>
-                                {att.type === "pdf" ? (
-                                  <FileText className="w-4 h-4 text-red-400" />
-                                ) : (
-                                  <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
-                                )}
+                      return (
+                        <TableRow key={exp.id} className={selectedIds.includes(exp.id) ? "bg-primary/5 border-primary/20" : ""}>
+                          <TableCell>
+                            <Checkbox 
+                              checked={selectedIds.includes(exp.id)}
+                              onChange={() => toggleSelectOne(exp.id)}
+                            />
+                          </TableCell>
+                          <TableCell className="text-sm whitespace-nowrap">{exp.date}</TableCell>
+                          <TableCell className="text-sm font-bold text-primary">#{exp.proformaNum}</TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <div
+                                className="w-6 h-6 rounded-md flex items-center justify-center shrink-0"
+                                style={{ backgroundColor: `${firm?.color || "#888"}20` }}
+                              >
+                                <Building2 className="w-3 h-3" style={{ color: firm?.color || "#888" }} />
                               </div>
-                            ))}
-                            {exp.attachments.length === 0 && (
-                              <span className="text-xs text-muted-foreground">—</span>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
-                          {creator?.name || "—"}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })
-                )}
-              </TableBody>
-            </Table>
+                              <span className="text-sm font-medium whitespace-nowrap">{firm?.name}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="text-xs gap-1 whitespace-nowrap">
+                              {exp.segment === "Personas" ? (
+                                <Users className="w-3 h-3" />
+                              ) : (
+                                <Briefcase className="w-3 h-3" />
+                              )}
+                              {exp.segment}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-sm whitespace-nowrap">{exp.expenseType}</TableCell>
+                          <TableCell className="text-sm text-muted-foreground min-w-[200px] truncate max-w-[300px]">
+                            {exp.description || "—"}
+                          </TableCell>
+                          <TableCell className="text-right font-semibold whitespace-nowrap">{fmt(exp.amount)}</TableCell>
+                          <TableCell>
+                            <PaymentStatusDropdown 
+                              expenseId={exp.id} 
+                              currentStatus={exp.status} 
+                              auditTrail={exp.auditTrail}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-1">
+                              {exp.attachments.map((att) => (
+                                <div key={att.id} title={att.name}>
+                                  {att.type === "pdf" ? (
+                                    <FileText className="w-4 h-4 text-red-400" />
+                                  ) : (
+                                    <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
+                                  )}
+                                </div>
+                              ))}
+                              {exp.attachments.length === 0 && (
+                                <span className="text-xs text-muted-foreground">—</span>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                            {creator?.name || "—"}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           </CardContent>
         </Card>
       </div>

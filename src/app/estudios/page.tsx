@@ -57,7 +57,8 @@ export default function EstudiosPage() {
         {/* Table */}
         <Card className="border-border/50">
           <CardContent className="pt-6">
-            <Table>
+            <div className="overflow-x-auto rounded-xl">
+              <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Estudio</TableHead>
@@ -320,8 +321,9 @@ export default function EstudiosPage() {
                 })}
               </TableBody>
             </Table>
-          </CardContent>
-        </Card>
+          </div>
+        </CardContent>
+      </Card>
       </div>
     </AppShell>
   );

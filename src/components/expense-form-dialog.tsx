@@ -207,7 +207,7 @@ export function ExpenseFormDialog() {
                 }
               }}
             >
-              <SelectTrigger className={`h-11 ${currentUser?.role === "ESTUDIO" ? "bg-slate-50 cursor-not-allowed" : "cursor-pointer"}`}>
+              <SelectTrigger className={`h-11 ${currentUser?.role === "ESTUDIO" ? "bg-slate-50 dark:bg-slate-900/50 cursor-not-allowed" : "cursor-pointer"}`}>
                 <SelectValue>
                   {selectedFirmId ? lawFirms.find(f => f.id === selectedFirmId)?.name : "Seleccionar estudio..."}
                 </SelectValue>
@@ -216,7 +216,7 @@ export function ExpenseFormDialog() {
                 {lawFirms.map((lf) => (
                   <SelectItem key={lf.id} value={lf.id} className="cursor-pointer">
                     <span className="font-medium">{lf.name}</span>
-                    <span className="ml-auto text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md font-bold whitespace-nowrap">
+                    <span className="ml-auto text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-2 py-0.5 rounded-md font-bold whitespace-nowrap">
                       DISP: {formatCurrency(Math.max(0, (lf.ocLimit || 0) - (lf.ocConsumed || 0)))}
                     </span>
                   </SelectItem>
@@ -240,7 +240,7 @@ export function ExpenseFormDialog() {
                     }}
                   />
                 </div>
-                <span className="text-slate-900 font-black text-sm tabular-nums">
+                <span className="text-slate-900 dark:text-slate-100 font-black text-sm tabular-nums">
                   {formatCurrency(availableBalance)} disponible
                 </span>
               </div>
@@ -360,7 +360,7 @@ export function ExpenseFormDialog() {
                 </p>
               )}
               {currentAmount > availableBalance && selectedFirmId && (
-                <p className="text-[11px] text-rose-500 font-bold animate-fade-in-up mt-1 flex items-center gap-1 bg-rose-50 p-2 rounded-lg border border-rose-100">
+                <p className="text-[11px] text-rose-500 font-bold animate-fade-in-up mt-1 flex items-center gap-1 bg-rose-50 dark:bg-rose-950/20 p-2 rounded-lg border border-rose-100 dark:border-rose-900/30">
                   <X className="w-3.5 h-3.5" />
                   <span>
                     Excedido por <span className="underline">{formatCurrency(currentAmount - availableBalance)}</span>

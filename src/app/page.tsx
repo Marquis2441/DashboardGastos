@@ -71,7 +71,7 @@ export default function DashboardPage() {
 
         {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="bg-white hover:bg-slate-50 transition-all duration-500 rounded-4xl shadow-sm hover:shadow-2xl hover:shadow-primary/10 border border-slate-200 group overflow-hidden relative font-roboto hover:-translate-y-2 hover:scale-[1.02] cursor-pointer">
+          <Card className="bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-500 rounded-4xl shadow-sm hover:shadow-2xl hover:shadow-primary/10 border border-slate-200 dark:border-slate-800 group overflow-hidden relative font-roboto hover:-translate-y-2 hover:scale-[1.02] cursor-pointer">
             <CardHeader className="flex flex-row items-center justify-between pb-2 relative z-10">
               <CardTitle className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                 Límite Total OC
@@ -83,7 +83,7 @@ export default function DashboardPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{fmt(totalOCLimit)}</div>
+              <div className="text-xl md:text-2xl font-bold">{fmt(totalOCLimit)}</div>
               <div className="flex items-center gap-2 mt-2">
                 <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
                   <div
@@ -96,7 +96,7 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-white hover:bg-slate-50 transition-all duration-500 rounded-4xl shadow-sm hover:shadow-2xl hover:shadow-emerald-500/10 border border-slate-200 group overflow-hidden relative font-roboto hover:-translate-y-2 hover:scale-[1.02] cursor-pointer">
+          <Card className="bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-500 rounded-4xl shadow-sm hover:shadow-2xl hover:shadow-emerald-500/10 border border-slate-200 dark:border-slate-800 group overflow-hidden relative font-roboto hover:-translate-y-2 hover:scale-[1.02] cursor-pointer">
             <CardHeader className="flex flex-row items-center justify-between pb-2 relative z-10">
               <CardTitle className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                 Saldo Disponible
@@ -108,14 +108,14 @@ export default function DashboardPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-emerald-500">{fmt(totalAvailable)}</div>
+              <div className="text-xl md:text-2xl font-bold text-emerald-500">{fmt(totalAvailable)}</div>
               <p className="text-xs text-muted-foreground mt-1">
                 de {fmt(totalOCLimit)} asignados
               </p>
             </CardContent>
           </Card>
 
-          <Card className="bg-white hover:bg-slate-50 transition-all duration-500 rounded-4xl shadow-sm hover:shadow-2xl hover:shadow-blue-500/10 border border-slate-200 group overflow-hidden relative font-roboto hover:-translate-y-2 hover:scale-[1.02] cursor-pointer">
+          <Card className="bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-500 rounded-4xl shadow-sm hover:shadow-2xl hover:shadow-blue-500/10 border border-slate-200 dark:border-slate-800 group overflow-hidden relative font-roboto hover:-translate-y-2 hover:scale-[1.02] cursor-pointer">
             <CardHeader className="flex flex-row items-center justify-between pb-2 relative z-10">
               <CardTitle className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                 Gastos Pagados
@@ -127,14 +127,14 @@ export default function DashboardPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{fmt(totalPaid)}</div>
+              <div className="text-xl md:text-2xl font-bold">{fmt(totalPaid)}</div>
               <p className="text-xs text-muted-foreground mt-1">
                 {paidExpenses.length} gastos liquidados
               </p>
             </CardContent>
           </Card>
 
-          <Card className="bg-white hover:bg-slate-50 transition-all duration-500 rounded-4xl shadow-sm hover:shadow-2xl hover:shadow-amber-500/10 border border-slate-200 group overflow-hidden relative font-roboto hover:-translate-y-2 hover:scale-[1.02] cursor-pointer">
+          <Card className="bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-500 rounded-4xl shadow-sm hover:shadow-2xl hover:shadow-amber-500/10 border border-slate-200 dark:border-slate-800 group overflow-hidden relative font-roboto hover:-translate-y-2 hover:scale-[1.02] cursor-pointer">
             <CardHeader className="flex flex-row items-center justify-between pb-2 relative z-10">
               <CardTitle className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                 Pendientes de Pago
@@ -146,7 +146,7 @@ export default function DashboardPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-amber-500">{fmt(totalPending)}</div>
+              <div className="text-xl md:text-2xl font-bold text-amber-500">{fmt(totalPending)}</div>
               <p className="text-xs text-muted-foreground mt-1">
                 {pendingExpenses.length} gastos sin pagar
                 {rejectedExpenses.length > 0 && (
@@ -174,7 +174,7 @@ export default function DashboardPage() {
 
               return (
                 <Link key={firm.id} href={`/estudios/${firm.id}`}>
-                  <Card className="border-border/50 hover:shadow-lg hover:border-primary/20 transition-all duration-200 cursor-pointer group">
+                  <Card className="bg-white dark:bg-slate-900 border-border/50 dark:border-slate-800/50 hover:shadow-lg hover:border-primary/20 transition-all duration-200 cursor-pointer group">
                     <CardContent className="pt-6">
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center gap-3">
@@ -230,7 +230,7 @@ export default function DashboardPage() {
         {/* Recent Activity */}
         <div>
           <h2 className="text-lg font-semibold mb-4">Actividad Reciente</h2>
-          <Card className="border-border/50">
+          <Card className="bg-white dark:bg-slate-900 border-border/50 dark:border-slate-800/50">
             <CardContent className="pt-6 space-y-4">
               {expenses.slice(0, 5).map((expense) => {
                 const firm = lawFirms.find((lf) => lf.id === expense.lawFirmId);

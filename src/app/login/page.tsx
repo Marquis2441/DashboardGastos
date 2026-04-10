@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { toast } from "sonner";
 import { Building2, Loader2, ShieldCheck, Eye, EyeOff } from "lucide-react";
 import { BrandLogo } from "@/components/brand-logo";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function LoginPage() {
   const login = useAppStore((s) => s.login);
@@ -41,22 +42,23 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden font-sans bg-slate-50/50">
+    <div className="min-h-screen flex flex-col relative overflow-hidden font-sans bg-slate-50/50 dark:bg-slate-950 transition-colors duration-300">
       {/* Navigation Header */}
       <header className="relative z-20 flex items-center justify-between p-6 lg:px-12 bg-transparent">
         <div className="flex items-center gap-2 group cursor-pointer">
           <BrandLogo />
           <div className="text-2xl tracking-tighter font-roboto">
-            <span className="font-extrabold text-slate-950">crezca</span>
+            <span className="font-extrabold text-slate-950 dark:text-slate-100">crezca</span>
             <span className="font-light text-primary">webs</span>
           </div>
         </div>
-        <nav className="hidden md:flex items-center gap-8 text-slate-600 font-bold font-roboto text-xs uppercase tracking-widest">
-          <button className="hover:text-primary transition-colors cursor-pointer">Home</button>
-          <button className="hover:text-primary transition-colors cursor-pointer">Servicios</button>
-          <button className="px-5 py-2 bg-white border border-slate-200 rounded-xl hover:shadow-md transition-all text-slate-900 cursor-pointer">
+        <nav className="flex items-center gap-4 md:gap-8 text-slate-600 dark:text-slate-400 font-bold font-roboto text-xs uppercase tracking-widest">
+          <button className="hidden md:block hover:text-primary transition-colors cursor-pointer">Home</button>
+          <button className="hidden md:block hover:text-primary transition-colors cursor-pointer">Servicios</button>
+          <button className="px-5 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl hover:shadow-md transition-all text-slate-900 dark:text-slate-100 cursor-pointer">
             Soporte
           </button>
+          <ThemeToggle />
         </nav>
       </header>
 
@@ -65,7 +67,7 @@ export default function LoginPage() {
         <div className="absolute top-1/4 -left-24 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-1/4 -right-24 w-96 h-96 bg-indigo-500/5 rounded-full blur-3xl animate-pulse delay-700" />
 
-        <div className="w-full max-w-4xl bg-white rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.08)] overflow-hidden flex flex-col md:flex-row relative z-10 border border-slate-100 animate-in fade-in zoom-in duration-700">
+        <div className="w-full max-w-4xl bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.08)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] overflow-hidden flex flex-col md:flex-row relative z-10 border border-slate-100 dark:border-slate-800 animate-in fade-in zoom-in duration-700">
           
           {/* Left Section: Decorative Image */}
           <div className="hidden md:block w-5/12 relative overflow-hidden">
@@ -94,13 +96,13 @@ export default function LoginPage() {
           </div>
 
           {/* Right Section: Login Form */}
-          <div className="flex-1 p-8 lg:p-14 bg-white">
+          <div className="flex-1 p-8 lg:p-14 bg-white dark:bg-slate-900">
             <div className="max-w-sm mx-auto space-y-8">
               <div className="space-y-2">
-                <h1 className="text-3xl font-black text-slate-900 tracking-tight font-roboto">
+                <h1 className="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight font-roboto">
                   Iniciar Sesión
                 </h1>
-                <p className="text-slate-500 text-sm font-medium">
+                <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">
                   Ingresá tus credenciales para acceder al panel.
                 </p>
               </div>
@@ -116,7 +118,7 @@ export default function LoginPage() {
                       type="email"
                       placeholder="nombre@empresa.com"
                       {...register("email")}
-                      className="h-12 bg-slate-50 border-slate-200 rounded-xl px-4 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-roboto border-2"
+                      className="h-12 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-xl px-4 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:bg-white dark:focus:bg-slate-900 focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-roboto border-2"
                     />
                   </div>
                   {errors.email && (
@@ -139,12 +141,12 @@ export default function LoginPage() {
                       type={showPassword ? "text" : "password"}
                       placeholder="••••••••"
                       {...register("password")}
-                      className="h-12 bg-slate-50 border-slate-200 rounded-xl px-4 pr-12 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-roboto border-2"
+                      className="h-12 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 rounded-xl px-4 pr-12 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:bg-white dark:focus:bg-slate-900 focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-roboto border-2"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary transition-colors focus:outline-none p-1.5 rounded-lg hover:bg-slate-100"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary transition-colors focus:outline-none p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
                     >
                       {showPassword ? (
                         <EyeOff className="h-5 w-5" />
@@ -172,9 +174,9 @@ export default function LoginPage() {
 
                 <div className="relative pt-4 text-center">
                   <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                    <div className="w-full border-t border-slate-100" />
+                    <div className="w-full border-t border-slate-100 dark:border-slate-800" />
                   </div>
-                  <span className="relative z-10 px-4 bg-white text-[10px] text-slate-400 font-black uppercase tracking-widest">
+                  <span className="relative z-10 px-4 bg-white dark:bg-slate-900 text-[10px] text-slate-400 font-black uppercase tracking-widest">
                     O continuar con
                   </span>
                 </div>
@@ -184,9 +186,9 @@ export default function LoginPage() {
                     <button 
                       key={i} 
                       type="button"
-                      className="flex items-center justify-center h-12 border-2 border-slate-100 rounded-xl hover:bg-slate-50 hover:border-slate-200 transition-all cursor-pointer group"
+                      className="flex items-center justify-center h-12 border-2 border-slate-100 dark:border-slate-800 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-200 dark:hover:border-slate-700 transition-all cursor-pointer group"
                     >
-                      <div className="w-5 h-5 bg-slate-200 rounded-full group-hover:bg-primary/20 transition-colors" />
+                      <div className="w-5 h-5 bg-slate-200 dark:bg-slate-700 rounded-full group-hover:bg-primary/20 transition-colors" />
                     </button>
                   ))}
                 </div>
