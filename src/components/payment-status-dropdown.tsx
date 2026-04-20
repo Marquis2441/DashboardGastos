@@ -22,6 +22,7 @@ import {
   History,
   ArrowRight,
   FileDown,
+  ShieldCheck,
 } from "lucide-react";
 
 const STATUS_CONFIG: Record<PaymentStatus, { icon: React.ElementType; className: string }> = {
@@ -32,6 +33,10 @@ const STATUS_CONFIG: Record<PaymentStatus, { icon: React.ElementType; className:
   "En Proceso de Pago": {
     icon: Loader2,
     className: "bg-amber-500/15 text-amber-400 border-amber-500/20 hover:bg-amber-500/25",
+  },
+  Autorizado: {
+    icon: ShieldCheck,
+    className: "bg-indigo-500/15 text-indigo-500 border-indigo-500/20 hover:bg-indigo-500/25",
   },
   Pagado: {
     icon: CheckCircle2,
@@ -50,6 +55,7 @@ const STATUS_CONFIG: Record<PaymentStatus, { icon: React.ElementType; className:
 const ALL_STATUSES: PaymentStatus[] = [
   "Ingresado",
   "En Proceso de Pago",
+  "Autorizado",
   "Facturado",
   "Pagado",
   "Rechazado",

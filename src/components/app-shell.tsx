@@ -3,12 +3,14 @@ import { useState } from "react";
 import { AppSidebar } from "./app-sidebar";
 import { Button } from "./ui/button";
 import { Menu, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
-    <div className="flex min-h-screen relative overflow-hidden bg-slate-100 dark:bg-slate-950 transition-colors duration-300">
+    <div className="flex min-h-screen relative overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
       
       {/* Mobile Toggle */}
       <div className="lg:hidden fixed top-4 right-4 z-50">
@@ -30,10 +32,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         />
       )}
 
-      <AppSidebar isOpen={isOpen} setIsOpen={setIsOpen} />
+      <AppSidebar 
+        isOpen={isOpen} 
+        setIsOpen={setIsOpen} 
+        isCollapsed={isCollapsed}
+        setIsCollapsed={setIsCollapsed}
+      />
       
-      <main className="flex-1 lg:ml-64 relative z-10 overflow-y-auto w-full">
-        <div className="p-4 md:p-6 lg:p-8 max-w-screen-xl mx-auto">
+      <main className={cn(
+        "flex-1 relative z-10 transition-all duration-300 flex flex-col min-h-screen",
+        isCollapsed ? "lg:ml-20" : "lg:ml-64"
+      )}>
+        <div className="p-0 w-full flex-1">
           {children}
         </div>
       </main>

@@ -185,7 +185,7 @@ export function ExpenseFormDialog() {
           <Plus className="w-4 h-4" />
           Nuevo Gasto
       </DialogTrigger>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-2xl max-h-[96vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl">Registrar Gasto</DialogTitle>
           <DialogDescription>
@@ -247,8 +247,8 @@ export function ExpenseFormDialog() {
             )}
           </div>
 
-          {/* Segmento + Motivo */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Segmento + Motivo + Proforma */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label>Segmento</Label>
               <Select onValueChange={(val: string | null) => setValue("segment", val as "Personas" | "Empresas")}>
@@ -280,9 +280,6 @@ export function ExpenseFormDialog() {
                 <p className="text-sm text-destructive animate-fade-in-up">{errors.expenseType.message}</p>
               )}
             </div>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="proforma">Nro Proforma</Label>
               <Input
@@ -296,23 +293,10 @@ export function ExpenseFormDialog() {
                 <p className="text-sm text-destructive animate-fade-in-up">{errors.proformaNum.message}</p>
               )}
             </div>
-            <div className="space-y-2">
-              <Label>Estado de Pago</Label>
-              <Select defaultValue="Ingresado" onValueChange={(val: string | null) => setValue("status", val as any)}>
-                <SelectTrigger className="h-11 cursor-pointer">
-                  <SelectValue placeholder="Seleccionar estado..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Ingresado" className="cursor-pointer">Ingresado</SelectItem>
-                  <SelectItem value="En Proceso de Pago" className="cursor-pointer">En Proceso de Pago</SelectItem>
-                  <SelectItem value="Pagado" className="cursor-pointer">Pagado</SelectItem>
-                  <SelectItem value="Rechazado" className="cursor-pointer">Rechazado</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
           </div>
-
-          <div className="grid grid-cols-2 gap-4">
+          
+          {/* Fecha + Monto + Estado */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="date">Fecha</Label>
               <Input
@@ -347,27 +331,45 @@ export function ExpenseFormDialog() {
                   </div>
                 )}
               />
-              {errors.amount && (
-                <p className="text-[11px] text-destructive font-bold animate-fade-in-up mt-1 flex items-center gap-1">
-                  <AlertCircle className="w-3 h-3" />
-                  {errors.amount.message}
-                </p>
-              )}
-              {currentAmount > 0 && !errors.amount && selectedFirmId && currentAmount <= availableBalance && (
-                <p className="text-[11px] text-emerald-600 font-bold animate-fade-in-up mt-1 flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  Monto autorizado (dentro del saldo)
-                </p>
-              )}
-              {currentAmount > availableBalance && selectedFirmId && (
-                <p className="text-[11px] text-rose-500 font-bold animate-fade-in-up mt-1 flex items-center gap-1 bg-rose-50 dark:bg-rose-950/20 p-2 rounded-lg border border-rose-100 dark:border-rose-900/30">
-                  <X className="w-3.5 h-3.5" />
-                  <span>
-                    Excedido por <span className="underline">{formatCurrency(currentAmount - availableBalance)}</span>
-                  </span>
-                </p>
-              )}
             </div>
+            <div className="space-y-2">
+              <Label>Estado de Pago</Label>
+              <Select defaultValue="Ingresado" onValueChange={(val: string | null) => setValue("status", val as any)}>
+                <SelectTrigger className="h-11 cursor-pointer">
+                  <SelectValue placeholder="Estado..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Ingresado" className="cursor-pointer">Ingresado</SelectItem>
+                  <SelectItem value="En Proceso de Pago" className="cursor-pointer">En Proceso de Pago</SelectItem>
+                  <SelectItem value="Pagado" className="cursor-pointer">Pagado</SelectItem>
+                  <SelectItem value="Rechazado" className="cursor-pointer">Rechazado</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Validaciones de Monto (Ancho completo) */}
+          <div className="-mt-2 min-h-[20px]">
+            {errors.amount && (
+              <p className="text-[11px] text-destructive font-bold animate-fade-in-up flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" />
+                {errors.amount.message}
+              </p>
+            )}
+            {currentAmount > 0 && !errors.amount && selectedFirmId && currentAmount <= availableBalance && (
+              <p className="text-[11px] text-emerald-600 font-bold animate-fade-in-up flex items-center gap-1">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                Monto autorizado (dentro del saldo)
+              </p>
+            )}
+            {currentAmount > availableBalance && selectedFirmId && (
+              <p className="text-[11px] text-rose-500 font-bold animate-fade-in-up flex items-center gap-1 bg-rose-50 dark:bg-rose-950/20 p-2 rounded-lg border border-rose-100 dark:border-rose-900/30">
+                <X className="w-3.5 h-3.5" />
+                <span>
+                  Excedido por <span className="underline">{formatCurrency(currentAmount - availableBalance)}</span>
+                </span>
+              </p>
+            )}
           </div>
 
           {/* Descripción */}
@@ -384,7 +386,7 @@ export function ExpenseFormDialog() {
           {/* Upload Zone */}
           <div className="space-y-3">
             <Label>Archivos adjuntos</Label>
-            <label className="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-border rounded-xl cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-all duration-200">
+            <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-border rounded-xl cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-all duration-200">
               <Upload className="w-6 h-6 text-muted-foreground mb-2" />
               <span className="text-sm text-muted-foreground">
                 Arrastra archivos o <span className="text-primary font-medium">haz click</span>

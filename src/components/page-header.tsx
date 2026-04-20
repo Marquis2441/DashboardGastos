@@ -1,6 +1,7 @@
 "use client";
 
 import { Building2, Bell, CheckCircle2, XCircle, FileDown, Clock } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ExpenseFormDialog } from "@/components/expense-form-dialog";
 import { useAppStore } from "@/lib/store";
@@ -109,7 +110,7 @@ export function PageHeader({ title, subtitle, showUser = false }: PageHeaderProp
   };
   
   return (
-    <div className="flex flex-col md:flex-row items-center justify-between bg-white/60 dark:bg-slate-900/60 backdrop-blur-md p-4 md:p-6 rounded-2xl md:rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm font-roboto transition-colors gap-4 md:gap-0">
+    <div className="flex flex-col md:flex-row items-center justify-between bg-white dark:bg-slate-900/90 backdrop-blur-md p-4 md:p-6 border-b border-slate-200 dark:border-slate-800 shadow-sm font-roboto transition-colors gap-4 md:gap-0 sticky top-0 z-30">
       <div className="flex items-center gap-4 md:gap-6 w-full md:w-auto">
         {/* Logo Crezcawebs - Hidden on mobile */}
         <div className="hidden sm:flex items-center gap-2 group border-r border-slate-200 dark:border-slate-800 pr-6">
@@ -127,15 +128,20 @@ export function PageHeader({ title, subtitle, showUser = false }: PageHeaderProp
             </h1>
             <button 
               onClick={handleNotificationClick}
-              title={hasNotifications ? "Alertas de OC pendientes" : "Sin notificaciones"}
-              className="relative p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-300 group flex items-center justify-center cursor-pointer overflow-visible hover:-translate-y-0.5 hover:scale-110 active:scale-95 active:translate-y-0.5"
+              title={hasNotifications ? "Notificaciones pendientes" : "Sin notificaciones"}
+              className="relative p-2 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-300 group flex items-center justify-center cursor-pointer overflow-visible hover:scale-105 active:scale-95"
             >
-              <Bell className={`w-4 h-4 md:w-5 md:h-5 transition-colors duration-200 ${hasNotifications ? "text-amber-500 fill-amber-50" : "text-slate-400 dark:text-slate-500 group-hover:text-primary dark:group-hover:text-primary"}`} />
+              <Bell className={cn(
+                "w-5 h-5 transition-all duration-300",
+                hasNotifications 
+                  ? "text-orange-500 stroke-[2.5px] drop-shadow-[0_0_8px_rgba(249,115,22,0.3)]" 
+                  : "text-slate-400 dark:text-slate-500 group-hover:text-primary"
+              )} />
               {hasNotifications && (
-                <>
-                  <span className="absolute top-1 right-1 w-2 md:w-2.5 h-2 md:h-2.5 bg-rose-500 rounded-full border-2 border-white dark:border-slate-900 shadow-sm z-10" />
-                  <span className="absolute top-1 right-1 w-2 md:w-2.5 h-2 md:h-2.5 bg-rose-500 rounded-full animate-ping opacity-75" />
-                </>
+                <div className="absolute -top-0.5 -right-0.5 flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-rose-500 border-2 border-white dark:border-slate-900 shadow-sm"></span>
+                </div>
               )}
             </button>
           </div>

@@ -1,24 +1,26 @@
 "use client";
-
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAppStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   LayoutDashboard,
   Building2,
   Receipt,
   LogOut,
-  Landmark,
   BarChart3,
+  Settings,
+  HelpCircle,
+  ChevronLeft,
+  ChevronRight,
+  ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { ThemeToggle } from "./theme-toggle";
 
-const BASE_NAV_ITEMS = [
+const NAV_ITEMS = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/estudios", label: "Estudios", icon: Building2 },
   { href: "/gastos", label: "Gastos", icon: Receipt },
@@ -28,9 +30,11 @@ const BASE_NAV_ITEMS = [
 interface AppSidebarProps {
   isOpen?: boolean;
   setIsOpen?: (open: boolean) => void;
+  isCollapsed: boolean;
+  setIsCollapsed: (collapsed: boolean) => void;
 }
 
-export function AppSidebar({ isOpen, setIsOpen }: AppSidebarProps) {
+export function AppSidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed }: AppSidebarProps) {
   const pathname = usePathname();
   const currentUser = useAppStore((s) => s.currentUser);
   const logout = useAppStore((s) => s.logout);
@@ -50,100 +54,165 @@ export function AppSidebar({ isOpen, setIsOpen }: AppSidebarProps) {
     if (currentUser?.role === "ESTUDIO") {
       return [{ href: "/gastos", label: "Mis Gastos", icon: Receipt }];
     }
-    return BASE_NAV_ITEMS;
+    if (currentUser?.role === "ADMIN") {
+      return [
+        { href: "/", label: "Dashboard", icon: LayoutDashboard },
+        { href: "/estudios", label: "Estudios", icon: Building2 },
+        { href: "/gastos", label: "Gastos", icon: Receipt },
+        { href: "/autorizaciones", label: "Autorizaciones", icon: ShieldCheck },
+        { href: "/mediciones", label: "Mediciones", icon: BarChart3 },
+      ];
+    }
+    return NAV_ITEMS;
   };
 
   const navItems = getNavItems();
 
   return (
     <aside className={cn(
-      "fixed left-0 top-0 z-40 h-screen w-64 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-r border-slate-200 dark:border-slate-800 flex flex-col shadow-sm font-roboto transition-all duration-300 lg:translate-x-0",
+      "fixed left-0 top-0 z-40 h-screen transition-all duration-300 ease-in-out flex flex-col font-roboto border-r border-slate-800 lg:translate-x-0 bg-[#0c0e12] text-slate-400",
+      isCollapsed ? "w-20" : "w-64",
       isOpen ? "translate-x-0" : "-translate-x-full"
     )}>
-      {/* Logo */}
-      <div className="p-8 pb-6">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shadow-sm">
-            <Landmark className="w-5 h-5 text-primary" />
-          </div>
-          <div>
-            <h1 className="font-sf font-bold text-sm text-slate-800 dark:text-slate-100 tracking-tight">
-              Control de Gastos
-            </h1>
-            <p className="text-[10px] text-primary/70 font-bold tracking-widest">Recupero de Activos</p>
-          </div>
+      {/* Collapse Toggle - Only visible on desktop */}
+      <button 
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        className="hidden lg:flex absolute -right-3 top-10 w-6 h-6 items-center justify-center bg-[#1a1c23] border border-slate-700 rounded-md text-slate-300 hover:text-white hover:bg-slate-700 transition-all z-50 shadow-lg"
+      >
+        {isCollapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
+      </button>
+
+      {/* User Header */}
+      <div className={cn(
+        "p-6 mb-4 transition-all duration-300 flex items-center gap-3",
+        isCollapsed ? "justify-center px-2" : "px-6"
+      )}>
+        <div className="relative group shrink-0">
+          <Avatar className={cn(
+            "border-2 border-slate-800 transition-all ring-2 ring-primary/20",
+            isCollapsed ? "w-10 h-10" : "w-12 h-12"
+          )}>
+            <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser?.id}`} />
+            <AvatarFallback className="bg-slate-800 text-slate-300">{initials}</AvatarFallback>
+          </Avatar>
+          <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-[#0c0e12] rounded-full" />
         </div>
+        
+        {!isCollapsed && (
+          <div className="flex-1 min-w-0 animate-in fade-in slide-in-from-left-2">
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none mb-1">
+              {currentUser?.role === "ADMIN" ? "Administrador" : currentUser?.role === "CCO" ? "CCO (Aprobador)" : "Gestor Estudio"}
+            </p>
+            <h2 className="text-sm font-black text-slate-100 truncate tracking-tight">
+              {currentUser?.name}
+            </h2>
+          </div>
+        )}
       </div>
 
-      <div className="h-[1px] bg-gradient-to-r from-transparent via-slate-200 dark:via-slate-800 to-transparent mx-4" />
+      <div className="px-4 mb-2">
+        <div className="h-[1px] bg-slate-800/50 w-full" />
+      </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-1">
-        {navItems.map((item) => {
-          const isActive =
-            item.href === "/"
-              ? pathname === "/"
-              : pathname.startsWith(item.href);
-          return (
-            <Link 
-              key={item.href} 
-              href={item.href}
-              onClick={() => setIsOpen?.(false)}
-            >
-              <div
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold transition-all duration-300 cursor-pointer font-roboto group",
-                  isActive
-                    ? "bg-primary/10 text-primary shadow-sm"
-                    : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-900 hover:translate-x-1 hover:scale-[1.02]"
-                )}
-              >
-                <item.icon className={cn("w-4 h-4 shadow-sm", isActive && "text-primary")} />
-                {item.label}
-                {isActive && (
-                  <div className="ml-auto w-1 h-4 rounded-full bg-primary animate-pulse-subtle" />
+      {/* Navigation Groups */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden py-4 custom-scrollbar space-y-6">
+        {/* Main Section */}
+        <section className="space-y-1">
+          {!isCollapsed && (
+            <h3 className="px-6 text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-2">
+              Main
+            </h3>
+          )}
+          <div className="px-3 space-y-1">
+            {navItems.map((item) => {
+              const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+              return (
+                <Link key={item.href} href={item.href} onClick={() => setIsOpen?.(false)}>
+                  <div className={cn(
+                    "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 group cursor-pointer relative",
+                    isActive 
+                      ? "bg-[#1a1c23] text-primary shadow-sm" 
+                      : "hover:bg-[#1a1c23]/50 hover:text-slate-100"
+                  )}>
+                    <item.icon className={cn("w-5 h-5 shrink-0 transition-colors", isActive ? "text-primary" : "text-slate-500 group-hover:text-slate-300")} />
+                    {!isCollapsed && <span className="animate-in fade-in slide-in-from-left-2">{item.label}</span>}
+                    
+                    {isActive && isCollapsed && (
+                      <div className="absolute right-0 w-1 h-6 bg-primary rounded-l-full shadow-[0_0_8px_rgba(var(--primary),0.5)]" />
+                    )}
+                    
+                    {isCollapsed && (
+                      <div className="absolute left-14 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-xl border border-slate-700">
+                        {item.label}
+                      </div>
+                    )}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Settings Section */}
+        <section className="space-y-1">
+          {!isCollapsed && (
+            <h3 className="px-6 text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-2">
+              Settings
+            </h3>
+          )}
+          <div className="px-3 space-y-1">
+            <Link href="/settings">
+              <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 group cursor-pointer hover:bg-[#1a1c23]/50 hover:text-slate-100 relative text-slate-500">
+                <Settings className="w-5 h-5 shrink-0 group-hover:text-slate-300" />
+                {!isCollapsed && <span className="animate-in fade-in slide-in-from-left-2">Configuración</span>}
+                {isCollapsed && (
+                  <div className="absolute left-14 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-xl border border-slate-700">
+                    Configuración
+                  </div>
                 )}
               </div>
             </Link>
-          );
-        })}
-      </nav>
-
-      <Separator className="bg-sidebar-border" />
-
-      {/* User Section */}
-      <div className="p-4 mt-auto">
-        <div className="bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
-          <div className="flex items-center gap-3 mb-4">
-            <Avatar className="w-10 h-10 border-2 border-primary/20">
-              <AvatarFallback className="text-xs font-bold text-primary bg-primary/10">
-                {initials}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate">
-                {currentUser?.name}
-              </p>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate uppercase tracking-tighter font-bold">
-                {currentUser?.role === "ADMIN" ? "Administrador" : currentUser?.role === "CCO" ? "CCO (Aprobador)" : "Estudio"}
-              </p>
-            </div>
           </div>
-          <div className="flex gap-2">
-            <ThemeToggle className="flex-1 justify-center rounded-xl" />
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              className="text-slate-500 hover:text-white hover:bg-destructive/80 cursor-pointer rounded-xl transition-all font-bold"
-              onClick={handleLogout}
-              title="Cerrar sesión"
-            >
-              <LogOut className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
+        </section>
       </div>
 
+      {/* Footer */}
+      <div className="p-4 mt-auto border-t border-slate-800/50 bg-[#0c0e12]">
+        <div className="space-y-1">
+          <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 group cursor-pointer hover:bg-[#1a1c23]/50 hover:text-slate-100 relative text-slate-500">
+            <HelpCircle className="w-5 h-5 shrink-0 group-hover:text-slate-300" />
+            {!isCollapsed && <span>Ayuda</span>}
+            {isCollapsed && (
+              <div className="absolute left-14 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-xl border border-slate-700">
+                Ayuda
+              </div>
+            )}
+          </button>
+          
+          <button 
+            onClick={handleLogout}
+            className={cn(
+            "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 group cursor-pointer relative",
+            "text-rose-500/80 hover:bg-rose-500/10 hover:text-rose-400"
+          )}>
+            <LogOut className="w-5 h-5 shrink-0" />
+            {!isCollapsed && <span>Cerrar Sesión</span>}
+            {isCollapsed && (
+              <div className="absolute left-14 bg-rose-500 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-xl">
+                Cerrar Sesión
+              </div>
+            )}
+          </button>
+        </div>
+        
+        {!isCollapsed && (
+          <div className="mt-4 flex items-center justify-between px-2 text-[10px] text-slate-600 font-bold uppercase tracking-widest">
+            <ThemeToggle className="h-8 w-8 text-slate-500 hover:text-white" />
+            <span>v0.1.0</span>
+          </div>
+        )}
+      </div>
     </aside>
   );
 }
+
