@@ -2,11 +2,19 @@
 // TIPOS E INTERFACES - Gestión Financiera
 // ==========================================
 
-export type PaymentStatus = "Ingresado" | "En Proceso de Pago" | "Autorizado" | "Pagado" | "Rechazado" | "Facturado";
+export type PaymentStatus = 
+  | "Ingresado" 
+  | "A facturar" 
+  | "Facturado" 
+  | "Ingresado Analista" 
+  | "En proceso de pago" 
+  | "Pagado" 
+  | "Rechazado";
+
 export type Segment = "Personas" | "Empresas";
 export type ExpenseType = "Tasa de Justicia" | "Honorarios" | "Inicios Judiciales";
 
-export type Role = "ADMIN" | "ESTUDIO" | "CCO";
+export type Role = "ANALISTA" | "ESTUDIO" | "CCO" | "ADMIN";
 
 export interface User {
   id: string;

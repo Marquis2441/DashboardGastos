@@ -127,14 +127,9 @@ export default function LoginPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between ml-1">
-                    <Label htmlFor="password" className="text-slate-500 text-[10px] uppercase tracking-widest font-black">
-                      Contraseña
-                    </Label>
-                    <button type="button" className="text-primary text-[10px] uppercase tracking-widest font-black hover:underline transition-all">
-                      ¿Olvidaste tu clave?
-                    </button>
-                  </div>
+                  <Label htmlFor="password" className="text-slate-500 text-[10px] uppercase tracking-widest font-black ml-1">
+                    Contraseña
+                  </Label>
                   <div className="relative group">
                     <Input
                       id="password"
@@ -160,37 +155,24 @@ export default function LoginPage() {
                   )}
                 </div>
 
-                <Button 
-                  type="submit" 
-                  className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-black rounded-xl transition-all shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98] font-roboto cursor-pointer text-sm" 
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                  ) : (
-                    "INGRESAR AL PANEL"
-                  )}
-                </Button>
-
-                <div className="relative pt-4 text-center">
-                  <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                    <div className="w-full border-t border-slate-100 dark:border-slate-800" />
-                  </div>
-                  <span className="relative z-10 px-4 bg-white dark:bg-slate-900 text-[10px] text-slate-400 font-black uppercase tracking-widest">
-                    O continuar con
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-3 gap-3">
-                  {[1, 2, 3].map((i) => (
-                    <button 
-                      key={i} 
-                      type="button"
-                      className="flex items-center justify-center h-12 border-2 border-slate-100 dark:border-slate-800 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-200 dark:hover:border-slate-700 transition-all cursor-pointer group"
-                    >
-                      <div className="w-5 h-5 bg-slate-200 dark:bg-slate-700 rounded-full group-hover:bg-primary/20 transition-colors" />
+                <div className="space-y-4 pt-2">
+                  <Button 
+                    type="submit" 
+                    className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-black rounded-xl transition-all shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98] font-roboto cursor-pointer text-sm" 
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                      "INGRESAR AL PANEL"
+                    )}
+                  </Button>
+                  
+                  <div className="text-center">
+                    <button type="button" className="text-primary text-[10px] uppercase tracking-widest font-black hover:underline transition-all cursor-pointer">
+                      Recupere su clave
                     </button>
-                  ))}
+                  </div>
                 </div>
               </form>
 

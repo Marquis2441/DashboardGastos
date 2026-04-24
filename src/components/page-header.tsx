@@ -110,8 +110,8 @@ export function PageHeader({ title, subtitle, showUser = false }: PageHeaderProp
   };
   
   return (
-    <div className="flex flex-col md:flex-row items-center justify-between bg-white dark:bg-slate-900/90 backdrop-blur-md p-4 md:p-6 border-b border-slate-200 dark:border-slate-800 shadow-sm font-roboto transition-colors gap-4 md:gap-0 sticky top-0 z-30">
-      <div className="flex items-center gap-4 md:gap-6 w-full md:w-auto">
+    <div className="flex flex-col md:flex-row items-center justify-between bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-3 md:p-6 border-b border-slate-200 dark:border-slate-800 shadow-sm font-roboto transition-colors gap-3 md:gap-0 sticky top-0 z-30">
+      <div className="flex items-center gap-3 md:gap-6 w-full md:w-auto">
         {/* Logo Crezcawebs - Hidden on mobile */}
         <div className="hidden sm:flex items-center gap-2 group border-r border-slate-200 dark:border-slate-800 pr-6">
           <BrandLogo />
@@ -121,53 +121,59 @@ export function PageHeader({ title, subtitle, showUser = false }: PageHeaderProp
           </div>
         </div>
 
-        <div className="space-y-1.5 flex-1 md:flex-none">
-          <div className="flex items-center gap-3">
-            <h1 className="text-xl md:text-2xl font-black tracking-tight text-slate-900 dark:text-slate-100 leading-none font-sf">
+        <div className="space-y-1 flex-1 md:flex-none">
+          <div className="flex items-center gap-2 md:gap-3">
+            <h1 className="text-lg md:text-2xl font-black tracking-tight text-slate-900 dark:text-slate-100 leading-tight font-sf">
               {title}
             </h1>
             <button 
               onClick={handleNotificationClick}
               title={hasNotifications ? "Notificaciones pendientes" : "Sin notificaciones"}
-              className="relative p-2 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-300 group flex items-center justify-center cursor-pointer overflow-visible hover:scale-105 active:scale-95"
+              className="relative p-1.5 md:p-2 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-300 group flex items-center justify-center cursor-pointer overflow-visible hover:scale-105 active:scale-95 shrink-0"
             >
               <Bell className={cn(
-                "w-5 h-5 transition-all duration-300",
+                "w-4 h-4 md:w-5 md:h-5 transition-all duration-300",
                 hasNotifications 
                   ? "text-orange-500 stroke-[2.5px] drop-shadow-[0_0_8px_rgba(249,115,22,0.3)]" 
                   : "text-slate-400 dark:text-slate-500 group-hover:text-primary"
               )} />
               {hasNotifications && (
-                <div className="absolute -top-0.5 -right-0.5 flex h-3 w-3">
+                <div className="absolute -top-0.5 -right-0.5 flex h-2.5 w-2.5 md:h-3 md:w-3">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-rose-500 border-2 border-white dark:border-slate-900 shadow-sm"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 md:h-3 md:w-3 bg-rose-500 border-2 border-white dark:border-slate-900 shadow-sm"></span>
                 </div>
               )}
             </button>
           </div>
           {subtitle && (
-            <p className="text-primary/80 font-bold uppercase tracking-widest text-[9px] md:text-[10px] leading-none">
+            <p className="text-primary/80 font-bold uppercase tracking-widest text-[8px] md:text-[10px] opacity-80">
               {subtitle}
             </p>
           )}
         </div>
       </div>
 
-      <div className="flex items-center justify-between md:justify-end gap-3 md:gap-4 w-full md:w-auto mt-2 md:mt-0 pt-3 md:pt-0 border-t md:border-t-0 border-slate-200 dark:border-slate-800">
+      <div className="flex items-center justify-between md:justify-end gap-2 md:gap-4 w-full md:w-auto pt-2 md:pt-0 border-t md:border-t-0 border-slate-100 dark:border-slate-800/50">
         {showUser && currentUser && (
-          <div className="flex items-center gap-2 md:gap-3 px-3 md:px-4 py-1.5 md:py-2 bg-slate-50 dark:bg-slate-800 rounded-xl md:rounded-2xl border border-slate-200 dark:border-slate-700">
-            <div className="text-right hidden xs:block">
-              <p className="text-[10px] md:text-xs font-bold text-slate-900 dark:text-slate-100 leading-none">{currentUser.name}</p>
-              <p className="text-[9px] md:text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold">{currentUser.role === 'ADMIN' ? 'Admin' : currentUser.role === 'CCO' ? 'CCO' : 'Estudio'}</p>
-            </div>
-            <Avatar className="w-8 h-8 md:w-10 md:h-10 border-2 border-primary/10">
-              <AvatarFallback className="bg-primary/5 dark:bg-primary/10 text-[10px] md:text-xs text-primary uppercase">
+          <div className="flex items-center gap-2 px-2 md:px-4 py-1.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200/60 dark:border-slate-700/50">
+            <Avatar className="w-7 h-7 md:w-10 md:h-10 border-2 border-primary/10">
+              <AvatarFallback className="bg-primary/5 dark:bg-primary/10 text-[9px] md:text-xs text-primary uppercase font-bold">
                 {currentUser.name.split(" ").map(n => n[0]).join("").slice(0, 2)}
               </AvatarFallback>
             </Avatar>
+            <div className="text-left md:text-right">
+              <p className="text-[10px] md:text-xs font-bold text-slate-900 dark:text-slate-100 leading-none">
+                {currentUser.name}
+              </p>
+              <p className="text-[8px] md:text-[10px] text-slate-500 dark:text-slate-400 uppercase font-black tracking-tighter">
+                {currentUser.role === 'ADMIN' ? 'Admin' : currentUser.role === 'CCO' ? 'CCO' : 'Estudio'}
+              </p>
+            </div>
           </div>
         )}
-        {currentUser?.role !== "CCO" && <ExpenseFormDialog />}
+        <div className="flex-1 md:flex-none flex justify-end">
+          {currentUser?.role !== "CCO" && <ExpenseFormDialog />}
+        </div>
       </div>
     </div>
   );

@@ -15,10 +15,13 @@ import {
   ChevronLeft,
   ChevronRight,
   ShieldCheck,
+  Glasses,
+  Search,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { ThemeToggle } from "./theme-toggle";
+import { Role } from "@/lib/types";
 
 const NAV_ITEMS = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -54,6 +57,14 @@ export function AppSidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed }: A
     if (currentUser?.role === "ESTUDIO") {
       return [{ href: "/gastos", label: "Mis Gastos", icon: Receipt }];
     }
+    if (currentUser?.role === "ANALISTA") {
+      return [
+        { href: "/", label: "Dashboard", icon: LayoutDashboard },
+        { href: "/estudios", label: "Estudios", icon: Building2 },
+        { href: "/gastos", label: "Gastos", icon: Receipt },
+        { href: "/mediciones", label: "Mediciones", icon: BarChart3 },
+      ];
+    }
     if (currentUser?.role === "ADMIN") {
       return [
         { href: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -70,8 +81,8 @@ export function AppSidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed }: A
 
   return (
     <aside className={cn(
-      "fixed left-0 top-0 z-40 h-screen transition-all duration-300 ease-in-out flex flex-col font-roboto border-r border-slate-800 lg:translate-x-0 bg-[#0c0e12] text-slate-400",
-      isCollapsed ? "w-20" : "w-64",
+      "fixed left-0 top-0 z-40 h-dvh transition-all duration-300 ease-in-out flex flex-col font-roboto border-r border-slate-800 lg:translate-x-0 bg-[#0c0e12] text-slate-400",
+      isCollapsed ? "w-20" : "w-[85vw] lg:w-64",
       isOpen ? "translate-x-0" : "-translate-x-full"
     )}>
       {/* Collapse Toggle - Only visible on desktop */}
@@ -101,9 +112,9 @@ export function AppSidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed }: A
         {!isCollapsed && (
           <div className="flex-1 min-w-0 animate-in fade-in slide-in-from-left-2">
             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none mb-1">
-              {currentUser?.role === "ADMIN" ? "Administrador" : currentUser?.role === "CCO" ? "CCO (Aprobador)" : "Gestor Estudio"}
+              {currentUser?.role === "ANALISTA" ? "Analista Riesgo" : currentUser?.role === "CCO" ? "CCO (Aprobador)" : currentUser?.role === "ADMIN" ? "Admin" : "Gestor Estudio"}
             </p>
-            <h2 className="text-sm font-black text-slate-100 truncate tracking-tight">
+            <h2 className="text-sm font-black text-slate-100 tracking-tight">
               {currentUser?.name}
             </h2>
           </div>
@@ -176,8 +187,34 @@ export function AppSidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed }: A
         </section>
       </div>
 
-      {/* Footer */}
+      {/* Footer Role Switcher & Actions */}
       <div className="p-4 mt-auto border-t border-slate-800/50 bg-[#0c0e12]">
+        {!isCollapsed && (
+          <div className="mb-4 space-y-2">
+            <h3 className="px-2 text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-2 flex items-center gap-2">
+              <Glasses className="w-3 h-3" /> Modo Desarrollo
+            </h3>
+            <div className="grid grid-cols-2 gap-2">
+              {(["ANALISTA", "ESTUDIO", "CCO", "ADMIN"] as Role[]).map((r) => (
+                <button
+                  key={r}
+                  onClick={() => {
+                    useAppStore.getState().switchRole(r);
+                    toast.success(`Rol cambiado a ${r}`);
+                  }}
+                  className={cn(
+                    "text-[9px] font-bold py-1.5 px-2 rounded-lg border transition-all truncate uppercase tracking-tighter",
+                    currentUser?.role === r 
+                      ? "bg-primary/20 text-primary border-primary/50" 
+                      : "bg-slate-800/50 text-slate-500 border-slate-700/50 hover:bg-slate-800 hover:text-slate-300"
+                  )}
+                >
+                  {r}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         <div className="space-y-1">
           <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 group cursor-pointer hover:bg-[#1a1c23]/50 hover:text-slate-100 relative text-slate-500">
             <HelpCircle className="w-5 h-5 shrink-0 group-hover:text-slate-300" />

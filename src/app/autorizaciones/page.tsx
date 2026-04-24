@@ -55,8 +55,8 @@ export default function AutorizacionesPage() {
 
   const fmt = (val: number) => `$${val.toLocaleString("es-AR")}`;
 
-  // Solo ADMIN puede ver esto
-  if (currentUser?.role !== "ADMIN") {
+  // Solo ADMIN o CCO pueden ver esto
+  if (!currentUser || !["ADMIN", "CCO"].includes(currentUser.role)) {
     return (
       <AppShell>
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
@@ -65,15 +65,15 @@ export default function AutorizacionesPage() {
           </div>
           <div className="text-center">
             <h1 className="text-2xl font-black text-slate-900 dark:text-slate-100">Acceso Denegado</h1>
-            <p className="text-slate-500">Solo administradores pueden gestionar autorizaciones.</p>
+            <p className="text-slate-500">Solo administradores o CCO pueden gestionar autorizaciones.</p>
           </div>
         </div>
       </AppShell>
     );
   }
 
-  // Únicamente gastos "En Proceso de Pago"
-  const pendingExpenses = expenses.filter(e => e.status === "En Proceso de Pago");
+  // Únicamente gastos validados ("Ingresado Analista") para autorizar a pago
+  const pendingExpenses = expenses.filter(e => e.status === "Ingresado Analista");
 
   // Filter expenses
   const filteredExpenses = pendingExpenses.filter((exp) => {
@@ -110,9 +110,9 @@ export default function AutorizacionesPage() {
   const handleBulkAuthorize = () => {
     if (selectedIds.length === 0) return;
     
-    bulkUpdateExpenseStatus(selectedIds, "Autorizado");
-    toast.success(`Gastos Autorizados correctamente`, {
-      description: `Se han autorizado ${selectedIds.length} gastos para pago.`
+    bulkUpdateExpenseStatus(selectedIds, "En proceso de pago");
+    toast.success(`Gastos enviados a pago`, {
+      description: `Se han movido ${selectedIds.length} gastos a "En proceso de pago".`
     });
     setSelectedIds([]);
   };
@@ -127,7 +127,7 @@ export default function AutorizacionesPage() {
           showUser
         />
 
-        <div className="p-4 md:p-6 lg:p-8 space-y-4">
+        <div className="p-4 md:p-6 lg:p-10 space-y-8 max-w-[1600px] mx-auto w-full">
           {/* Summary Cards - More Compact */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
              <Card className="bg-amber-50/50 dark:bg-amber-950/10 border-amber-200/50 dark:border-amber-900/30 shadow-sm border">
@@ -257,7 +257,8 @@ export default function AutorizacionesPage() {
                )}
             </CardContent>
 
-            <div className="overflow-x-auto px-6 pb-6">
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto px-6 pb-6">
               <Table>
                 <TableHeader>
                   <TableRow className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
@@ -342,6 +343,70 @@ export default function AutorizacionesPage() {
                   )}
                 </TableBody>
               </Table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden p-4 space-y-4">
+              {filteredExpenses.length === 0 ? (
+                <div className="py-12 text-center text-muted-foreground">
+                   No hay autorizaciones pendientes.
+                </div>
+              ) : (
+                filteredExpenses.map((exp) => {
+                  const firm = lawFirms.find((lf) => lf.id === exp.lawFirmId);
+                  return (
+                    <Card key={exp.id} className={cn(
+                      "border-border/60 transition-all",
+                      selectedIds.includes(exp.id) && "border-indigo-500/50 ring-1 ring-indigo-500/20 bg-indigo-50/30"
+                    )}>
+                      <CardContent className="p-4 space-y-3">
+                         <div className="flex items-start justify-between">
+                            <div className="flex items-center gap-2">
+                               <Checkbox 
+                                 checked={selectedIds.includes(exp.id)}
+                                 onChange={() => toggleSelectOne(exp.id)}
+                               />
+                               <div>
+                                  <p className="text-xs font-black text-primary">#{exp.proformaNum}</p>
+                                  <p className="text-[10px] text-muted-foreground">{exp.date}</p>
+                               </div>
+                            </div>
+                            <StatusBadge status={exp.status} />
+                         </div>
+
+                         <div className="flex items-center gap-3 py-2 border-y border-slate-100 dark:border-slate-800/50">
+                            <div
+                                className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                                style={{ backgroundColor: `${firm?.color || "#888"}15` }}
+                              >
+                                <Building2 className="w-4 h-4" style={{ color: firm?.color || "#888" }} />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                 <p className="text-sm font-bold truncate">{firm?.name}</p>
+                                 <div className="flex items-center gap-2 mt-0.5">
+                                   <Badge variant="outline" className="text-[8px] h-3.5 px-1.5 py-0 border-slate-200">
+                                     {exp.segment}
+                                   </Badge>
+                                   <span className="text-[10px] text-muted-foreground truncate">{exp.expenseType}</span>
+                                 </div>
+                              </div>
+                         </div>
+
+                         <div className="flex items-center justify-between">
+                            <div className="flex gap-1.5">
+                               {exp.attachments.map(att => (
+                                  <div key={att.id} className="w-6 h-6 rounded-md bg-slate-50 dark:bg-slate-800 flex items-center justify-center border border-slate-200 dark:border-slate-700">
+                                     {att.type === 'pdf' ? <FileText className="w-3 h-3 text-red-500" /> : <FileSpreadsheet className="w-3 h-3 text-emerald-500" />}
+                                  </div>
+                               ))}
+                            </div>
+                            <p className="text-base font-black text-slate-900 dark:text-slate-50">{fmt(exp.amount)}</p>
+                         </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })
+              )}
             </div>
           </Card>
         </div>

@@ -33,7 +33,7 @@ export default function DashboardPage() {
   const usagePercent = (totalOCConsumed / totalOCLimit) * 100;
 
   const paidExpenses = expenses.filter((e) => e.status === "Pagado");
-  const pendingExpenses = expenses.filter((e) => e.status === "Ingresado" || e.status === "En Proceso de Pago");
+  const pendingExpenses = expenses.filter((e) => !["Pagado", "Rechazado"].includes(e.status));
   const rejectedExpenses = expenses.filter((e) => e.status === "Rechazado");
 
   const totalPaid = paidExpenses.reduce((acc, e) => acc + e.amount, 0);
@@ -42,12 +42,12 @@ export default function DashboardPage() {
   const fmt = (val: number) => `$${val.toLocaleString("es-AR")}`;
 
   useEffect(() => {
-    if (currentUser && currentUser.role !== "ADMIN") {
+    if (currentUser && !["ADMIN", "ANALISTA"].includes(currentUser.role)) {
       router.replace("/gastos");
     }
   }, [currentUser, router]);
 
-  if (currentUser?.role !== "ADMIN") {
+  if (!currentUser || !["ADMIN", "ANALISTA"].includes(currentUser.role)) {
     return (
       <AppShell>
         <div className="flex items-center justify-center h-[60vh]">
@@ -67,90 +67,83 @@ export default function DashboardPage() {
           showUser
         />
 
-        <div className="p-4 md:p-6 lg:p-10 space-y-8">
+        <div className="p-3 md:p-6 lg:p-10 space-y-6 md:space-y-8">
           {/* KPI Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-500 rounded-4xl shadow-sm hover:shadow-2xl hover:shadow-primary/10 border border-slate-200 dark:border-slate-800 group overflow-hidden relative font-roboto hover:-translate-y-2 hover:scale-[1.02] cursor-pointer">
-              <CardHeader className="flex flex-row items-center justify-between pb-2 relative z-10">
-                <CardTitle className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+            <Card className="bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-500 rounded-2xl md:rounded-4xl shadow-sm border border-slate-200 dark:border-slate-800 group overflow-hidden relative font-roboto hover:-translate-y-1 md:hover:-translate-y-2 cursor-pointer">
+              <CardHeader className="flex flex-row items-center justify-between pb-1 md:pb-2 p-3 md:p-6 relative z-10">
+                <CardTitle className="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                   Límite Total OC
                 </CardTitle>
 
-
-                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center transition-all duration-500 group-hover:scale-110 group-hover:rotate-12 group-hover:bg-primary/20">
-                  <DollarSign className="w-5 h-5 text-primary" />
+                <div className="w-7 h-7 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-primary/10 flex items-center justify-center transition-all duration-500 group-hover:scale-110 group-hover:rotate-12 group-hover:bg-primary/20 shrink-0">
+                  <DollarSign className="w-3.5 h-3.5 md:w-5 md:h-5 text-primary" />
                 </div>
               </CardHeader>
-              <CardContent>
-                <div className="text-xl md:text-2xl font-bold">{fmt(totalOCLimit)}</div>
-                <div className="flex items-center gap-2 mt-2">
-                  <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
+              <CardContent className="p-3 md:p-6 pt-0 md:pt-0">
+                <div className="text-sm md:text-2xl font-black">{fmt(totalOCLimit)}</div>
+                <div className="flex items-center gap-2 mt-1.5 md:mt-2">
+                  <div className="flex-1 h-1 md:h-2 rounded-full bg-muted overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all duration-700 bg-primary"
                       style={{ width: `${usagePercent}%` }}
                     />
                   </div>
-                  <span className="text-xs text-muted-foreground">{usagePercent.toFixed(1)}%</span>
+                  <span className="text-[8px] md:text-xs text-muted-foreground">{usagePercent.toFixed(1)}%</span>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-500 rounded-4xl shadow-sm hover:shadow-2xl hover:shadow-emerald-500/10 border border-slate-200 dark:border-slate-800 group overflow-hidden relative font-roboto hover:-translate-y-2 hover:scale-[1.02] cursor-pointer">
-              <CardHeader className="flex flex-row items-center justify-between pb-2 relative z-10">
-                <CardTitle className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+            <Card className="bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-500 rounded-2xl md:rounded-4xl shadow-sm border border-slate-200 dark:border-slate-800 group overflow-hidden relative font-roboto hover:-translate-y-1 md:hover:-translate-y-2 cursor-pointer">
+              <CardHeader className="flex flex-row items-center justify-between pb-1 md:pb-2 p-3 md:p-6 relative z-10">
+                <CardTitle className="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                   Saldo Disponible
                 </CardTitle>
 
-
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center transition-all duration-500 group-hover:scale-110 group-hover:rotate-12 group-hover:bg-emerald-500/20">
-                  <TrendingUp className="w-5 h-5 text-emerald-500" />
+                <div className="w-7 h-7 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-emerald-500/10 flex items-center justify-center transition-all duration-500 group-hover:scale-110 group-hover:rotate-12 group-hover:bg-emerald-500/20 shrink-0">
+                  <TrendingUp className="w-3.5 h-3.5 md:w-5 md:h-5 text-emerald-500" />
                 </div>
               </CardHeader>
-              <CardContent>
-                <div className="text-xl md:text-2xl font-bold text-emerald-500">{fmt(totalAvailable)}</div>
-                <p className="text-xs text-muted-foreground mt-1">
+              <CardContent className="p-3 md:p-6 pt-0 md:pt-0">
+                <div className="text-sm md:text-2xl font-black text-emerald-500">{fmt(totalAvailable)}</div>
+                <p className="text-[8px] md:text-xs text-muted-foreground mt-0.5 md:mt-1 truncate">
                   de {fmt(totalOCLimit)} asignados
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-500 rounded-4xl shadow-sm hover:shadow-2xl hover:shadow-blue-500/10 border border-slate-200 dark:border-slate-800 group overflow-hidden relative font-roboto hover:-translate-y-2 hover:scale-[1.02] cursor-pointer">
-              <CardHeader className="flex flex-row items-center justify-between pb-2 relative z-10">
-                <CardTitle className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+            <Card className="bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-500 rounded-2xl md:rounded-4xl shadow-sm border border-slate-200 dark:border-slate-800 group overflow-hidden relative font-roboto hover:-translate-y-1 md:hover:-translate-y-2 cursor-pointer">
+              <CardHeader className="flex flex-row items-center justify-between pb-1 md:pb-2 p-3 md:p-6 relative z-10">
+                <CardTitle className="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                   Gastos Pagados
                 </CardTitle>
 
-
-                <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center transition-all duration-500 group-hover:scale-110 group-hover:rotate-12 group-hover:bg-blue-500/20">
-                  <Receipt className="w-5 h-5 text-blue-500" />
+                <div className="w-7 h-7 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-blue-500/10 flex items-center justify-center transition-all duration-500 group-hover:scale-110 group-hover:rotate-12 group-hover:bg-blue-500/20 shrink-0">
+                  <Receipt className="w-3.5 h-3.5 md:w-5 md:h-5 text-blue-500" />
                 </div>
               </CardHeader>
-              <CardContent>
-                <div className="text-xl md:text-2xl font-bold">{fmt(totalPaid)}</div>
-                <p className="text-xs text-muted-foreground mt-1">
+              <CardContent className="p-3 md:p-6 pt-0 md:pt-0">
+                <div className="text-sm md:text-2xl font-black">{fmt(totalPaid)}</div>
+                <p className="text-[8px] md:text-xs text-muted-foreground mt-0.5 md:mt-1 truncate">
                   {paidExpenses.length} gastos liquidados
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-500 rounded-4xl shadow-sm hover:shadow-2xl hover:shadow-amber-500/10 border border-slate-200 dark:border-slate-800 group overflow-hidden relative font-roboto hover:-translate-y-2 hover:scale-[1.02] cursor-pointer">
-              <CardHeader className="flex flex-row items-center justify-between pb-2 relative z-10">
-                <CardTitle className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                  Pendientes de Pago
+            <Card className="bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-500 rounded-2xl md:rounded-4xl shadow-sm border border-slate-200 dark:border-slate-800 group overflow-hidden relative font-roboto hover:-translate-y-1 md:hover:-translate-y-2 cursor-pointer">
+              <CardHeader className="flex flex-row items-center justify-between pb-1 md:pb-2 p-3 md:p-6 relative z-10">
+                <CardTitle className="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                  Pendientes
                 </CardTitle>
 
-
-                <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center transition-all duration-500 group-hover:scale-110 group-hover:rotate-12 group-hover:bg-amber-500/20">
-                  <AlertTriangle className="w-5 h-5 text-amber-500" />
+                <div className="w-7 h-7 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-amber-500/10 flex items-center justify-center transition-all duration-500 group-hover:scale-110 group-hover:rotate-12 group-hover:bg-amber-500/20 shrink-0">
+                  <AlertTriangle className="w-3.5 h-3.5 md:w-5 md:h-5 text-amber-500" />
                 </div>
               </CardHeader>
-              <CardContent>
-                <div className="text-xl md:text-2xl font-bold text-amber-500">{fmt(totalPending)}</div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {pendingExpenses.length} gastos sin pagar
-                  {rejectedExpenses.length > 0 && (
-                    <span className="text-destructive"> · {rejectedExpenses.length} rechazados</span>
-                  )}
+              <CardContent className="p-3 md:p-6 pt-0 md:pt-0">
+                <div className="text-sm md:text-2xl font-black text-amber-500">{fmt(totalPending)}</div>
+                <p className="text-[8px] md:text-xs text-muted-foreground mt-0.5 md:mt-1 truncate">
+                  {pendingExpenses.length} sin pagar
                 </p>
               </CardContent>
             </Card>

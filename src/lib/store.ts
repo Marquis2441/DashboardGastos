@@ -16,9 +16,10 @@ import type {
 // MOCK DATA
 // ==========================================
 const MOCK_USERS: User[] = [
-  { id: "u1", name: "Administrador Banco", email: "admin@banco.com", role: "ADMIN" },
+  { id: "u1", name: "Analista de Gastos", email: "analista@banco.com", role: "ANALISTA" },
   { id: "u2", name: "Estudio Bancalari", email: "contacto@bancalari.com", role: "ESTUDIO", lawFirmId: "lf1" },
   { id: "u3", name: "Operador CCO", email: "cco@banco.com", role: "CCO" },
+  { id: "u4", name: "Administrador General", email: "admin@banco.com", role: "ADMIN" },
 ];
 
 const MOCK_LAW_FIRMS: LawFirm[] = [
@@ -43,11 +44,11 @@ const MOCK_EXPENSES: Expense[] = [
   },
   {
     id: "e2", lawFirmId: "lf1", proformaNum: 1025, segment: "Empresas", expenseType: "Honorarios",
-    amount: 500000, date: "2026-02-20", status: "En Proceso de Pago", description: "Honorarios prof. febrero",
+    amount: 500000, date: "2026-02-20", status: "En proceso de pago", description: "Honorarios prof. febrero",
     attachments: [], createdBy: "u2", createdAt: "2026-02-20T09:00:00Z",
     auditTrail: [
       { id: "at3", action: "Creado", newValue: "Ingresado", userId: "u2", userName: "Ana García", timestamp: "2026-02-20T09:00:00Z" },
-      { id: "at4", action: "Estado cambiado", previousValue: "Ingresado", newValue: "En Proceso de Pago", userId: "u1", userName: "Marcos Rossi", timestamp: "2026-02-25T11:00:00Z" },
+      { id: "at4", action: "Estado cambiado", previousValue: "Ingresado", newValue: "En proceso de pago", userId: "u1", userName: "Marcos Rossi", timestamp: "2026-02-25T11:00:00Z" },
     ],
   },
   {
@@ -70,10 +71,11 @@ const MOCK_EXPENSES: Expense[] = [
   },
   {
     id: "e5", lawFirmId: "lf3", proformaNum: 3012, segment: "Personas", expenseType: "Tasa de Justicia",
-    amount: 280000, date: "2026-02-28", status: "Ingresado", description: "Tasa tribunal comercial",
+    amount: 280000, date: "2026-02-28", status: "A facturar", description: "Tasa tribunal comercial",
     attachments: [], createdBy: "u2", createdAt: "2026-02-28T14:00:00Z",
     auditTrail: [
       { id: "at8", action: "Creado", newValue: "Ingresado", userId: "u2", userName: "Ana García", timestamp: "2026-02-28T14:00:00Z" },
+      { id: "at8b", action: "Estado cambiado", previousValue: "Ingresado", newValue: "A facturar", userId: "u1", userName: "Analista de Gastos", timestamp: "2026-03-01T14:00:00Z" },
     ],
   },
   {
@@ -97,11 +99,11 @@ const MOCK_EXPENSES: Expense[] = [
   },
   {
     id: "e8", lawFirmId: "lf4", proformaNum: 4057, segment: "Empresas", expenseType: "Tasa de Justicia",
-    amount: 750000, date: "2026-02-10", status: "En Proceso de Pago", description: "Tasa febrero empresas",
+    amount: 750000, date: "2026-02-10", status: "En proceso de pago", description: "Tasa febrero empresas",
     attachments: [], createdBy: "u2", createdAt: "2026-02-10T09:00:00Z",
     auditTrail: [
       { id: "at13", action: "Creado", newValue: "Ingresado", userId: "u2", userName: "Ana García", timestamp: "2026-02-10T09:00:00Z" },
-      { id: "at14", action: "Estado cambiado", previousValue: "Ingresado", newValue: "En Proceso de Pago", userId: "u3", userName: "Carlos López", timestamp: "2026-02-15T10:00:00Z" },
+      { id: "at14", action: "Estado cambiado", previousValue: "Ingresado", newValue: "En proceso de pago", userId: "u3", userName: "Carlos López", timestamp: "2026-02-15T10:00:00Z" },
     ],
   },
 ];
@@ -127,6 +129,7 @@ interface AppState {
   addExpense: (expense: Omit<Expense, "id" | "createdAt" | "auditTrail" | "attachments"> & { attachments?: Attachment[] }) => void;
   updateExpenseStatus: (expenseId: string, newStatus: PaymentStatus) => void;
   bulkUpdateExpenseStatus: (expenseIds: string[], newStatus: PaymentStatus) => void;
+  addAttachment: (expenseId: string, attachment: Attachment) => void;
   getExpensesByFirm: (lawFirmId: string) => Expense[];
   getExpensesByFirmAndSegment: (lawFirmId: string, segment: Segment) => Expense[];
   getExpensesByFirmAndType: (lawFirmId: string, expenseType: ExpenseType) => Expense[];
@@ -148,12 +151,14 @@ export const useAppStore = create<AppState>()(
         
         let user: User | undefined;
         
-        if (identifier.includes("admin")) {
-          user = MOCK_USERS.find(u => u.role === "ADMIN");
+        if (identifier.includes("analista")) {
+          user = MOCK_USERS.find(u => u.role === "ANALISTA");
         } else if (identifier.includes("cco")) {
           user = MOCK_USERS.find(u => u.role === "CCO");
         } else if (identifier.includes("estudio")) {
           user = MOCK_USERS.find(u => u.role === "ESTUDIO");
+        } else if (identifier.includes("admin")) {
+          user = MOCK_USERS.find(u => u.role === "ADMIN");
         } else {
           // Fallback al primer usuario si no hay coincidencia
           user = MOCK_USERS.find(u => u.email === email) || MOCK_USERS[0];
@@ -268,6 +273,31 @@ export const useAppStore = create<AppState>()(
               ...exp,
               status: newStatus,
               auditTrail: [...exp.auditTrail, auditEntry],
+            };
+          }),
+        }));
+      },
+
+      addAttachment: (expenseId: string, attachment: Attachment) => {
+        const user = get().currentUser;
+        const timestamp = new Date().toISOString();
+        set((state) => ({
+          expenses: state.expenses.map((exp) => {
+            if (exp.id !== expenseId) return exp;
+            return {
+              ...exp,
+              attachments: [...exp.attachments, attachment],
+              auditTrail: [
+                ...exp.auditTrail,
+                {
+                  id: `at_att_${Date.now()}`,
+                  action: "Archivo adjuntado",
+                  newValue: attachment.name,
+                  userId: user?.id || "u0",
+                  userName: user?.name || "Usuario",
+                  timestamp,
+                }
+              ]
             };
           }),
         }));
