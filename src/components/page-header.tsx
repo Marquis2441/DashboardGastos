@@ -22,7 +22,7 @@ export function PageHeader({ title, subtitle, showUser = false }: PageHeaderProp
   
   // Logic for specific notifications per role
   const inProcessExpenses = (currentUser?.role === "ADMIN")
-    ? expenses.filter(e => e.status === "En Proceso de Pago")
+    ? expenses.filter(e => e.status === "En proceso de pago")
     : [];
 
   const billedExpenses = (currentUser?.role === "CCO")

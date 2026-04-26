@@ -340,7 +340,7 @@ export function ExpenseFormDialog() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Ingresado" className="cursor-pointer">Ingresado</SelectItem>
-                  <SelectItem value="En Proceso de Pago" className="cursor-pointer">En Proceso de Pago</SelectItem>
+                  <SelectItem value="En proceso de pago" className="cursor-pointer">En proceso de pago</SelectItem>
                   <SelectItem value="Pagado" className="cursor-pointer">Pagado</SelectItem>
                   <SelectItem value="Rechazado" className="cursor-pointer">Rechazado</SelectItem>
                 </SelectContent>
