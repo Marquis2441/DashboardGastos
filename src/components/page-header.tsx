@@ -19,7 +19,7 @@ export function PageHeader({ title, subtitle, showUser = false }: PageHeaderProp
   const expenses = useAppStore((s) => s.expenses);
   const getExpensesByFirm = useAppStore((s) => s.getExpensesByFirm);
   const lawFirms = useAppStore((s) => s.lawFirms);
-  
+
   // Logic for specific notifications per role
   const inProcessExpenses = (currentUser?.role === "ADMIN")
     ? expenses.filter(e => e.status === "En proceso de pago")
@@ -32,14 +32,14 @@ export function PageHeader({ title, subtitle, showUser = false }: PageHeaderProp
   const rejectedExpenses = (currentUser?.role === "ESTUDIO" && currentUser.lawFirmId)
     ? getExpensesByFirm(currentUser.lawFirmId).filter(e => e.status === "Rechazado")
     : [];
-  
+
   // Logic for OC limits (ADMIN/CCO)
   const lowOCFirms = (currentUser?.role === "ADMIN" || currentUser?.role === "CCO")
     ? lawFirms.filter(f => (f.ocConsumed / f.ocLimit) > 0.85)
     : [];
 
-  const hasNotifications = (currentUser?.role === "ESTUDIO") 
-    ? rejectedExpenses.length > 0 
+  const hasNotifications = (currentUser?.role === "ESTUDIO")
+    ? rejectedExpenses.length > 0
     : (currentUser?.role === "ADMIN")
       ? (inProcessExpenses.length > 0 || lowOCFirms.length > 0)
       : (currentUser?.role === "CCO")
@@ -108,7 +108,7 @@ export function PageHeader({ title, subtitle, showUser = false }: PageHeaderProp
       });
     }
   };
-  
+
   return (
     <div className="flex flex-col md:flex-row items-center justify-between bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-3 md:p-6 border-b border-slate-200 dark:border-slate-800 shadow-sm font-roboto transition-colors gap-3 md:gap-0 sticky top-0 z-30">
       <div className="flex items-center gap-3 md:gap-6 w-full md:w-auto">
@@ -123,18 +123,18 @@ export function PageHeader({ title, subtitle, showUser = false }: PageHeaderProp
 
         <div className="space-y-1 flex-1 md:flex-none">
           <div className="flex items-center gap-2 md:gap-3">
-            <h1 className="text-lg md:text-2xl font-black tracking-tight text-slate-900 dark:text-slate-100 leading-tight font-sf">
+            <h1 className="text-lg md:text-2xl font-normal tracking-tight text-slate-900 dark:text-slate-100 leading-tight font-sf">
               {title}
             </h1>
-            <button 
+            <button
               onClick={handleNotificationClick}
               title={hasNotifications ? "Notificaciones pendientes" : "Sin notificaciones"}
               className="relative p-1.5 md:p-2 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-300 group flex items-center justify-center cursor-pointer overflow-visible hover:scale-105 active:scale-95 shrink-0"
             >
               <Bell className={cn(
                 "w-4 h-4 md:w-5 md:h-5 transition-all duration-300",
-                hasNotifications 
-                  ? "text-orange-500 stroke-[2.5px] drop-shadow-[0_0_8px_rgba(249,115,22,0.3)]" 
+                hasNotifications
+                  ? "text-orange-500 stroke-[2.5px] drop-shadow-[0_0_8px_rgba(249,115,22,0.3)]"
                   : "text-slate-400 dark:text-slate-500 group-hover:text-primary"
               )} />
               {hasNotifications && (

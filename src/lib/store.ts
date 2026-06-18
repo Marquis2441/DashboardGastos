@@ -145,13 +145,15 @@ export const useAppStore = create<AppState>()(
       currentUser: null,
       users: MOCK_USERS,
 
-      login: (email: string, _password: string) => {
+      login: (email: string, password: string) => {
         // DEMO BYPASS: Si el email contiene ciertas palabras clave, asignamos rol
         const identifier = email.toLowerCase();
         
         let user: User | undefined;
         
-        if (identifier.includes("analista")) {
+        if (email === "admin" && password === "admin") {
+          user = MOCK_USERS.find(u => u.role === "ADMIN");
+        } else if (identifier.includes("analista")) {
           user = MOCK_USERS.find(u => u.role === "ANALISTA");
         } else if (identifier.includes("cco")) {
           user = MOCK_USERS.find(u => u.role === "CCO");
@@ -315,6 +317,10 @@ export const useAppStore = create<AppState>()(
     {
       name: "gestion-financiera-demo-storage",
       storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({ 
+        lawFirms: state.lawFirms, 
+        expenses: state.expenses 
+      }), // No persisto currentUser para forzar login siempre
     }
   )
 );
