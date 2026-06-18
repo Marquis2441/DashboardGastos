@@ -74,9 +74,9 @@ export default function LoginPage() {
                 id="email"
                 type="text"
                 placeholder="Email address*"
-                autoComplete="off"
+                autoComplete="new-password"
                 {...register("email")}
-                className="h-12 bg-white border-2 border-slate-200 rounded-sm px-4 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-500 focus:ring-0 transition-all font-sans shadow-sm"
+                className="h-12 bg-white border-2 border-slate-200 rounded-sm px-4 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-500 focus:ring-0 transition-all font-sans shadow-sm [&:-webkit-autofill]:shadow-[0_0_0_1000px_white_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:black]"
               />
               {errors.email && (
                 <p className="text-[10px] text-rose-500 font-medium mt-1 ml-1">{errors.email.message}</p>
@@ -90,7 +90,7 @@ export default function LoginPage() {
                 placeholder="Password*"
                 autoComplete="new-password"
                 {...register("password")}
-                className="h-12 bg-white border-2 border-slate-200 rounded-sm px-4 pr-10 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-500 focus:ring-0 transition-all font-sans shadow-sm"
+                className="h-12 bg-white border-2 border-slate-200 rounded-sm px-4 pr-10 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-500 focus:ring-0 transition-all font-sans shadow-sm [&:-webkit-autofill]:shadow-[0_0_0_1000px_white_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:black]"
               />
               <button
                 type="button"
