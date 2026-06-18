@@ -66,7 +66,7 @@ export default function LoginPage() {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" autoComplete="off">
           <div className="space-y-3">
             
             <div className="relative group">
@@ -74,6 +74,7 @@ export default function LoginPage() {
                 id="email"
                 type="text"
                 placeholder="Email address*"
+                autoComplete="off"
                 {...register("email")}
                 className="h-12 bg-white border-2 border-slate-200 rounded-sm px-4 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-500 focus:ring-0 transition-all font-sans shadow-sm"
               />
@@ -87,6 +88,7 @@ export default function LoginPage() {
                 id="password"
                 type={showPassword ? "text" : "password"}
                 placeholder="Password*"
+                autoComplete="new-password"
                 {...register("password")}
                 className="h-12 bg-white border-2 border-slate-200 rounded-sm px-4 pr-10 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-500 focus:ring-0 transition-all font-sans shadow-sm"
               />
