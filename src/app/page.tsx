@@ -81,7 +81,7 @@ export default function DashboardPage() {
                 </div>
               </CardHeader>
               <CardContent className="p-3 md:p-6 pt-0 md:pt-0">
-                <div className="text-sm md:text-2xl font-black">{fmt(totalOCLimit)}</div>
+                <div className="text-sm md:text-2xl font-black font-mono">{fmt(totalOCLimit)}</div>
                 <div className="flex items-center gap-2 mt-1.5 md:mt-2">
                   <div className="flex-1 h-1 md:h-2 rounded-full bg-muted overflow-hidden">
                     <div
@@ -105,9 +105,9 @@ export default function DashboardPage() {
                 </div>
               </CardHeader>
               <CardContent className="p-3 md:p-6 pt-0 md:pt-0">
-                <div className="text-sm md:text-2xl font-black text-emerald-500">{fmt(totalAvailable)}</div>
+                <div className="text-sm md:text-2xl font-black text-emerald-500 font-mono">{fmt(totalAvailable)}</div>
                 <p className="text-[8px] md:text-xs text-muted-foreground mt-0.5 md:mt-1 truncate">
-                  de {fmt(totalOCLimit)} asignados
+                  de <span className="font-mono">{fmt(totalOCLimit)}</span> asignados
                 </p>
               </CardContent>
             </Card>
@@ -123,7 +123,7 @@ export default function DashboardPage() {
                 </div>
               </CardHeader>
               <CardContent className="p-3 md:p-6 pt-0 md:pt-0">
-                <div className="text-sm md:text-2xl font-black">{fmt(totalPaid)}</div>
+                <div className="text-sm md:text-2xl font-black font-mono">{fmt(totalPaid)}</div>
                 <p className="text-[8px] md:text-xs text-muted-foreground mt-0.5 md:mt-1 truncate">
                   {paidExpenses.length} gastos liquidados
                 </p>
@@ -141,7 +141,7 @@ export default function DashboardPage() {
                 </div>
               </CardHeader>
               <CardContent className="p-3 md:p-6 pt-0 md:pt-0">
-                <div className="text-sm md:text-2xl font-black text-amber-500">{fmt(totalPending)}</div>
+                <div className="text-sm md:text-2xl font-black text-amber-500 font-mono">{fmt(totalPending)}</div>
                 <p className="text-[8px] md:text-xs text-muted-foreground mt-0.5 md:mt-1 truncate">
                   {pendingExpenses.length} sin pagar
                 </p>
@@ -195,7 +195,7 @@ export default function DashboardPage() {
                         <div className="space-y-2">
                           <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground">Consumido</span>
-                            <span className="font-semibold">{fmt(firm.ocConsumed)}</span>
+                            <span className="font-semibold font-mono">{fmt(firm.ocConsumed)}</span>
                           </div>
                           <div className="h-2.5 rounded-full bg-muted overflow-hidden">
                             <div
@@ -207,8 +207,8 @@ export default function DashboardPage() {
                             />
                           </div>
                           <div className="flex justify-between text-xs text-muted-foreground">
-                            <span>Disponible: <span className={isHighUsage ? "text-destructive font-semibold" : "text-emerald-500 font-semibold"}>{fmt(available)}</span></span>
-                            <span>Límite: {fmt(firm.ocLimit)}</span>
+                            <span>Disponible: <span className={isHighUsage ? "text-destructive font-semibold font-mono" : "text-emerald-500 font-semibold font-mono"}>{fmt(available)}</span></span>
+                            <span>Límite: <span className="font-mono">{fmt(firm.ocLimit)}</span></span>
                           </div>
                         </div>
                       </CardContent>
@@ -238,14 +238,14 @@ export default function DashboardPage() {
                       />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">
-                          {firm?.name} — {expense.expenseType} — <span className="text-primary font-bold">#{expense.proformaNum}</span>
+                          {firm?.name} — {expense.expenseType} — <span className="text-primary font-bold font-mono">#{expense.proformaNum}</span>
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {lastAudit.userName} · {lastAudit.action}
                           {lastAudit.newValue && ` → ${lastAudit.newValue}`}
                         </p>
                       </div>
-                      <span className="text-sm font-semibold whitespace-nowrap">{fmt(expense.amount)}</span>
+                      <span className="text-sm font-semibold whitespace-nowrap font-mono">{fmt(expense.amount)}</span>
                     </div>
                   );
                 })}

@@ -146,28 +146,13 @@ export const useAppStore = create<AppState>()(
       users: MOCK_USERS,
 
       login: (email: string, password: string) => {
-        // DEMO BYPASS: Si el email contiene ciertas palabras clave, asignamos rol
-        const identifier = email.toLowerCase();
-        
-        let user: User | undefined;
-        
-        if (email === "admin" && password === "admin") {
-          user = MOCK_USERS.find(u => u.role === "ADMIN");
-        } else if (identifier.includes("analista")) {
-          user = MOCK_USERS.find(u => u.role === "ANALISTA");
-        } else if (identifier.includes("cco")) {
-          user = MOCK_USERS.find(u => u.role === "CCO");
-        } else if (identifier.includes("estudio")) {
-          user = MOCK_USERS.find(u => u.role === "ESTUDIO");
-        } else if (identifier.includes("admin")) {
-          user = MOCK_USERS.find(u => u.role === "ADMIN");
-        } else {
-          // Fallback al primer usuario si no hay coincidencia
-          user = MOCK_USERS.find(u => u.email === email) || MOCK_USERS[0];
+        if (email === "admin" && password === "Banco123") {
+          const user = MOCK_USERS.find(u => u.role === "ADMIN");
+          set({ currentUser: user });
+          return true;
         }
-
-        set({ currentUser: user });
-        return true;
+        // Rechazar cualquier otra credencial
+        return false;
       },
 
       logout: () => set({ currentUser: null }),

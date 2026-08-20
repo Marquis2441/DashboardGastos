@@ -73,8 +73,8 @@ function ExpenseTable({ expenses, lawFirms }: { expenses: Expense[]; lawFirms: R
           const creator = users.find(u => u.id === exp.createdBy);
           return (
             <TableRow key={exp.id} className="animate-fade-in-up">
-              <TableCell className="text-sm">{exp.date}</TableCell>
-              <TableCell className="text-sm font-bold text-primary">#{exp.proformaNum}</TableCell>
+              <TableCell className="text-sm font-mono">{exp.date}</TableCell>
+              <TableCell className="text-sm font-bold text-primary font-mono">#{exp.proformaNum}</TableCell>
               <TableCell>
                 <Badge variant="outline" className="text-xs gap-1">
                   {exp.segment === "Personas" ? <Users className="w-3 h-3" /> : <Briefcase className="w-3 h-3" />}
@@ -82,7 +82,7 @@ function ExpenseTable({ expenses, lawFirms }: { expenses: Expense[]; lawFirms: R
                 </Badge>
               </TableCell>
               <TableCell className="text-sm">{exp.expenseType}</TableCell>
-              <TableCell className="text-right font-semibold">{fmt(exp.amount)}</TableCell>
+              <TableCell className="text-right font-semibold font-mono">{fmt(exp.amount)}</TableCell>
               <TableCell>
                 <PaymentStatusDropdown expenseId={exp.id} currentStatus={exp.status} auditTrail={exp.auditTrail} />
               </TableCell>
@@ -113,9 +113,12 @@ function ExpenseTable({ expenses, lawFirms }: { expenses: Expense[]; lawFirms: R
 
 export default function EstudioDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  
   const lawFirms = useAppStore((s) => s.lawFirms);
-  const firm = useAppStore((s) => s.getLawFirm(id));
-  const firmExpenses = useAppStore((s) => s.getExpensesByFirm(id));
+  const expenses = useAppStore((s) => s.expenses);
+
+  const firm = lawFirms.find(f => f.id === id);
+  const firmExpenses = expenses.filter(e => e.lawFirmId === id);
 
   const fmt = (val: number) => `$${val.toLocaleString("es-AR")}`;
 
@@ -180,15 +183,15 @@ export default function EstudioDetailPage({ params }: { params: Promise<{ id: st
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <div>
                 <p className="text-sm text-muted-foreground">Límite OC</p>
-                <p className="text-2xl font-bold mt-1">{fmt(firm.ocLimit)}</p>
+                <p className="text-2xl font-bold mt-1 font-mono">{fmt(firm.ocLimit)}</p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Consumido</p>
-                <p className="text-2xl font-bold mt-1">{fmt(firm.ocConsumed)}</p>
+                <p className="text-2xl font-bold mt-1 font-mono">{fmt(firm.ocConsumed)}</p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Disponible</p>
-                <p className={`text-2xl font-bold mt-1 ${isHighUsage ? "text-destructive" : "text-emerald-500"}`}>
+                <p className={`text-2xl font-bold mt-1 font-mono ${isHighUsage ? "text-destructive" : "text-emerald-500"}`}>
                   {fmt(available)}
                 </p>
               </div>
@@ -204,7 +207,7 @@ export default function EstudioDetailPage({ params }: { params: Promise<{ id: st
                       }}
                     />
                   </div>
-                  <span className={`text-lg font-bold ${isHighUsage ? "text-destructive" : ""}`}>
+                  <span className={`text-lg font-bold font-mono ${isHighUsage ? "text-destructive" : ""}`}>
                     {percent.toFixed(1)}%
                   </span>
                 </div>
@@ -230,7 +233,7 @@ export default function EstudioDetailPage({ params }: { params: Promise<{ id: st
                   <div>
                     <CardTitle className="text-base">{segment}</CardTitle>
                     <p className="text-xs text-muted-foreground">
-                      {exps.length} gastos · {fmt(total)}
+                      <span className="font-mono">{exps.length}</span> gastos · <span className="font-mono">{fmt(total)}</span>
                     </p>
                   </div>
                 </CardHeader>
@@ -256,7 +259,7 @@ export default function EstudioDetailPage({ params }: { params: Promise<{ id: st
                   <div>
                     <CardTitle className="text-sm">{type}</CardTitle>
                     <p className="text-xs text-muted-foreground">
-                      {exps.length} gastos · {fmt(total)}
+                      <span className="font-mono">{exps.length}</span> gastos · <span className="font-mono">{fmt(total)}</span>
                     </p>
                   </div>
                 </CardHeader>
@@ -281,7 +284,7 @@ export default function EstudioDetailPage({ params }: { params: Promise<{ id: st
                 <CardHeader className="flex flex-row items-center gap-3">
                   <Icon className="w-5 h-5" style={{ color: cfg.color }} />
                   <CardTitle className="text-base">{segment}</CardTitle>
-                  <Badge variant="secondary" className="text-xs ml-auto">{exps.length} registros</Badge>
+                  <Badge variant="secondary" className="text-xs ml-auto font-mono"><span className="pr-1">{exps.length}</span> registros</Badge>
                 </CardHeader>
                 <CardContent>
                   <ExpenseTable expenses={exps} lawFirms={lawFirms} />
@@ -307,7 +310,7 @@ export default function EstudioDetailPage({ params }: { params: Promise<{ id: st
                 <CardHeader className="flex flex-row items-center gap-3">
                   <Icon className="w-5 h-5" style={{ color: cfg.color }} />
                   <CardTitle className="text-base">{type}</CardTitle>
-                  <Badge variant="secondary" className="text-xs ml-auto">{exps.length} registros</Badge>
+                  <Badge variant="secondary" className="text-xs ml-auto font-mono"><span className="pr-1">{exps.length}</span> registros</Badge>
                 </CardHeader>
                 <CardContent>
                   <ExpenseTable expenses={exps} lawFirms={lawFirms} />
