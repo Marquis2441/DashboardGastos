@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Estado del proyecto
 
-## Getting Started
+Este proyecto es un **prototipo funcional** desarrollado desde el área de Cobranzas para ilustrar la lógica de negocio y los flujos de trabajo requeridos. No está pensado para deploy en producción tal cual — utiliza datos y autenticación simulados (no hay backend ni base de datos real). Se comparte como base de requerimientos para que el área de Sistemas evalúe la implementación definitiva (backend, base de datos, seguridad, integración con los sistemas del banco).
 
-First, run the development server:
+## Lógica de negocio
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Roles del sistema
+- **ANALISTA**: usuario interno de Cobranzas. Carga y gestiona los gastos.
+- **ESTUDIO**: representante de un estudio jurídico externo. Tiene visibilidad acotada a su propio estudio (`lawFirmId`).
+- **CCO**: operador de Centro de Control de Operaciones (o el área que corresponda). Interviene en el circuito de aprobación/pago.
+- **ADMIN**: administrador general, visibilidad y permisos totales.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Falta definir: qué acción puede hacer cada rol sobre cada estado (por ejemplo, ¿quién puede pasar un gasto de "Facturado" a "En proceso de pago"? ¿Solo CCO, o también Admin?).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Ciclo de vida de un gasto (estado)
+Un gasto recorre los siguientes estados, en este orden esperado:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`Ingresado` → `A facturar` → `Facturado` → `Ingresado Analista` → `En proceso de pago` → `Pagado`
 
-## Learn More
+Con un estado alternativo `Rechazado`, que puede darse en cualquier punto del circuito.
 
-To learn more about Next.js, take a look at the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Estudios jurídicos y Orden de Compra (OC)
+Cada estudio jurídico tiene:
+- Un **límite de OC** (`ocLimit`): el monto máximo que se le puede asignar en gastos.
+- Un **consumido** (`ocConsumed`): lo ya utilizado.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+El sistema debería alertar o bloquear la carga de un nuevo gasto si `ocConsumed + nuevo gasto > ocLimit`.
 
-## Deploy on Vercel
+Falta definir: ¿el bloqueo es duro (no deja cargar) o blando (alerta pero permite, sujeto a aprobación)? ¿Quién autoriza una excepción?
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Clasificación de gastos
+Cada gasto se clasifica por:
+- **Segmento**: `Personas` o `Empresas`.
+- **Tipo de gasto**: `Tasa de Justicia`, `Honorarios`, `Inicios Judiciales`.
+- **Estudio jurídico** asociado, **número de proforma**, **monto**, **fecha**, **descripción**.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Adjuntos
+Cada gasto puede tener archivos adjuntos (PDF, Excel u otro) — típicamente la factura o comprobante de respaldo. Se registra quién lo subió y cuándo.
+
+### Trazabilidad / Auditoría
+Cada gasto mantiene un historial completo (`auditTrail`) de cambios: qué acción se hizo, valor anterior, valor nuevo, quién y cuándo. Esto es clave para cualquier circuito de aprobación bancario y debería mantenerse (o mejorarse) en la versión productiva.
+
+### Métricas del dashboard
+La vista principal resume: OC total vs. consumido, cantidad de gastos por estado, por segmento y por tipo. Es la fotografía que hoy Cobranzas necesita ver de un vistazo y hoy arma manualmente.
