@@ -47,10 +47,18 @@ export default function MedicionesPage() {
     const empresas = expenses
       .filter((e) => e.segment === "Empresas")
       .reduce((sum, e) => sum + e.amount, 0);
+    const retail = expenses
+      .filter((e) => e.segment === "Retail")
+      .reduce((sum, e) => sum + e.amount, 0);
+    const canalesIndirectos = expenses
+      .filter((e) => e.segment === "Canales Indirectos")
+      .reduce((sum, e) => sum + e.amount, 0);
 
     return [
       { name: "Personas", value: personas, color: "#3B82F6" },
       { name: "Empresas", value: empresas, color: "#10B981" },
+      { name: "Retail", value: retail, color: "#F59E0B" },
+      { name: "Canales Ind.", value: canalesIndirectos, color: "#8B5CF6" },
     ];
   }, [expenses]);
 
@@ -84,45 +92,45 @@ export default function MedicionesPage() {
         <div className="p-4 md:p-6 lg:p-10 space-y-8 max-w-[1600px] mx-auto w-full">
           {/* KPI Row */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden relative group">
+            <Card className="bg-card rounded-md shadow-sm border border-border overflow-hidden relative group">
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between mb-2">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Acumulado</p>
-                  <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
-                    <Wallet className="w-4 h-4 text-blue-500" />
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Total Acumulado</p>
+                  <div className="w-8 h-8 rounded-md bg-muted flex items-center justify-center">
+                    <Wallet className="w-4 h-4 text-foreground" />
                   </div>
                 </div>
-                <p className="text-xl md:text-2xl font-black text-slate-900">{fmt(totalSpent)}</p>
+                <p className="text-xl md:text-2xl font-bold text-foreground">{fmt(totalSpent)}</p>
                 <div className="flex items-center gap-1 mt-2">
-                  <TrendingUp className="w-3 h-3 text-emerald-500" />
-                  <span className="text-[10px] font-bold text-emerald-500">+12.5% vs mes anterior</span>
+                  <TrendingUp className="w-3 h-3 text-success" />
+                  <span className="text-[10px] font-bold text-success">+12.5% vs mes anterior</span>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden relative group">
+            <Card className="bg-card rounded-md shadow-sm border border-border overflow-hidden relative group">
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between mb-2">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Gasto Promedio</p>
-                  <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
-                    <Landmark className="w-4 h-4 text-emerald-500" />
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Gasto Promedio</p>
+                  <div className="w-8 h-8 rounded-md bg-muted flex items-center justify-center">
+                    <Landmark className="w-4 h-4 text-foreground" />
                   </div>
                 </div>
-                <p className="text-xl md:text-2xl font-black text-slate-900">{fmt(avgExpense)}</p>
-                <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-tight">Costo promedio por trámite</p>
+                <p className="text-xl md:text-2xl font-bold text-foreground">{fmt(avgExpense)}</p>
+                <p className="text-[10px] font-bold text-muted-foreground mt-2 uppercase tracking-tight">Costo promedio por trámite</p>
               </CardContent>
             </Card>
 
-            <Card className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden relative group">
+            <Card className="bg-card rounded-md shadow-sm border border-border overflow-hidden relative group">
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between mb-2">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Volumen de Trámites</p>
-                  <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
-                    <Users className="w-4 h-4 text-amber-500" />
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Volumen de Trámites</p>
+                  <div className="w-8 h-8 rounded-md bg-muted flex items-center justify-center">
+                    <Users className="w-4 h-4 text-foreground" />
                   </div>
                 </div>
-                <p className="text-xl md:text-2xl font-black text-slate-900">{expenses.length}</p>
-                <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-tight">Gastos registrados a la fecha</p>
+                <p className="text-xl md:text-2xl font-bold text-foreground">{expenses.length}</p>
+                <p className="text-[10px] font-bold text-muted-foreground mt-2 uppercase tracking-tight">Gastos registrados a la fecha</p>
               </CardContent>
             </Card>
           </div>
@@ -130,32 +138,33 @@ export default function MedicionesPage() {
           {/* Charts Row 1 */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Bar Chart: Expenses by Law Firm */}
-            <Card className="bg-white rounded-3xl shadow-sm border border-slate-200">
+            <Card className="bg-card rounded-md shadow-sm border border-border">
               <CardHeader>
-                <CardTitle className="text-sm font-bold text-slate-800 uppercase tracking-tight">Gastos por Estudio Jurídico</CardTitle>
+                <CardTitle className="text-sm font-bold text-foreground uppercase tracking-tight">Gastos por Estudio Jurídico</CardTitle>
               </CardHeader>
               <CardContent className="h-[300px] pt-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={lawFirmData}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                    <XAxis 
-                      dataKey="name" 
-                      axisLine={false} 
-                      tickLine={false} 
-                      tick={{ fontSize: 10, fontWeight: 700, fill: '#64748b' }}
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                    <XAxis
+                      dataKey="name"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 10, fontWeight: 700, fill: 'var(--muted-foreground)' }}
                     />
-                    <YAxis 
-                      axisLine={false} 
-                      tickLine={false} 
-                      tick={{ fontSize: 10, fontWeight: 700, fill: '#64748b' }}
+                    <YAxis
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 10, fontWeight: 700, fill: 'var(--muted-foreground)' }}
                       tickFormatter={(val) => `$${val / 1000000}M`}
                     />
-                    <Tooltip 
-                      cursor={{ fill: '#f8fafc' }}
-                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                    <Tooltip
+                      cursor={{ fill: 'var(--muted)' }}
+                      contentStyle={{ borderRadius: '10px', border: '1px solid var(--border)', backgroundColor: 'var(--popover)', color: 'var(--popover-foreground)', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.15)' }}
+                      labelStyle={{ color: 'var(--popover-foreground)' }}
                       formatter={(val: any) => [fmt(Number(val)), "Monto"]}
                     />
-                    <Bar dataKey="monto" radius={[8, 8, 0, 0]} barSize={40}>
+                    <Bar dataKey="monto" radius={[6, 6, 0, 0]} barSize={40}>
                       {lawFirmData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
@@ -166,43 +175,44 @@ export default function MedicionesPage() {
             </Card>
 
             {/* Area Chart: Trend */}
-            <Card className="bg-white rounded-3xl shadow-sm border border-slate-200">
+            <Card className="bg-card rounded-md shadow-sm border border-border">
               <CardHeader>
-                <CardTitle className="text-sm font-bold text-slate-800 uppercase tracking-tight">Tendencia de Gasto Mensual</CardTitle>
+                <CardTitle className="text-sm font-bold text-foreground uppercase tracking-tight">Tendencia de Gasto Mensual</CardTitle>
               </CardHeader>
               <CardContent className="h-[300px] pt-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={trendData}>
                     <defs>
                       <linearGradient id="colorGastos" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.1}/>
-                        <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
+                        <stop offset="5%" stopColor="var(--foreground)" stopOpacity={0.15}/>
+                        <stop offset="95%" stopColor="var(--foreground)" stopOpacity={0}/>
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                    <XAxis 
-                      dataKey="name" 
-                      axisLine={false} 
-                      tickLine={false} 
-                      tick={{ fontSize: 10, fontWeight: 700, fill: '#64748b' }}
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                    <XAxis
+                      dataKey="name"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 10, fontWeight: 700, fill: 'var(--muted-foreground)' }}
                     />
-                    <YAxis 
-                      axisLine={false} 
-                      tickLine={false} 
-                      tick={{ fontSize: 10, fontWeight: 700, fill: '#64748b' }}
+                    <YAxis
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 10, fontWeight: 700, fill: 'var(--muted-foreground)' }}
                       tickFormatter={(val) => `$${val / 1000}k`}
                     />
-                    <Tooltip 
-                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                    <Tooltip
+                      contentStyle={{ borderRadius: '10px', border: '1px solid var(--border)', backgroundColor: 'var(--popover)', color: 'var(--popover-foreground)', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.15)' }}
+                      labelStyle={{ color: 'var(--popover-foreground)' }}
                       formatter={(val: any) => [fmt(Number(val)), "Gastos"]}
                     />
-                    <Area 
-                      type="monotone" 
-                      dataKey="gastos" 
-                      stroke="#3B82F6" 
-                      strokeWidth={3}
-                      fillOpacity={1} 
-                      fill="url(#colorGastos)" 
+                    <Area
+                      type="monotone"
+                      dataKey="gastos"
+                      stroke="var(--foreground)"
+                      strokeWidth={2}
+                      fillOpacity={1}
+                      fill="url(#colorGastos)"
                     />
                   </AreaChart>
                 </ResponsiveContainer>
@@ -212,9 +222,9 @@ export default function MedicionesPage() {
 
           {/* Charts Row 2 */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <Card className="bg-white rounded-3xl shadow-sm border border-slate-200 lg:col-span-1">
+            <Card className="bg-card rounded-md shadow-sm border border-border lg:col-span-1">
               <CardHeader>
-                <CardTitle className="text-sm font-bold text-slate-800 uppercase tracking-tight">Distribución por Segmento</CardTitle>
+                <CardTitle className="text-sm font-bold text-foreground uppercase tracking-tight">Distribución por Segmento</CardTitle>
               </CardHeader>
               <CardContent className="h-[300px] pt-0">
                 <ResponsiveContainer width="100%" height="100%">
@@ -227,38 +237,40 @@ export default function MedicionesPage() {
                       outerRadius={80}
                       paddingAngle={5}
                       dataKey="value"
+                      stroke="var(--card)"
                     >
                       {segmentData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
-                    <Tooltip 
-                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                    <Tooltip
+                      contentStyle={{ borderRadius: '10px', border: '1px solid var(--border)', backgroundColor: 'var(--popover)', color: 'var(--popover-foreground)', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.15)' }}
+                      labelStyle={{ color: 'var(--popover-foreground)' }}
                       formatter={(val: any) => [fmt(Number(val)), "Total"]}
                     />
-                    <Legend verticalAlign="bottom" height={36}/>
+                    <Legend verticalAlign="bottom" height={36} wrapperStyle={{ fontSize: 11, color: 'var(--muted-foreground)' }} />
                   </PieChart>
                 </ResponsiveContainer>
               </CardContent>
             </Card>
 
-            <Card className="bg-white rounded-3xl shadow-sm border border-slate-200 lg:col-span-2">
+            <Card className="bg-card rounded-md shadow-sm border border-border lg:col-span-2">
               <CardHeader>
-                <CardTitle className="text-sm font-bold text-slate-800 uppercase tracking-tight">Análisis Comparativo</CardTitle>
+                <CardTitle className="text-sm font-bold text-foreground uppercase tracking-tight">Análisis Comparativo</CardTitle>
               </CardHeader>
               <CardContent className="flex items-center justify-center p-8">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
                       {lawFirmData.map((firm) => (
-                          <div key={firm.name} className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
-                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{firm.name}</p>
+                          <div key={firm.name} className="p-4 rounded-md bg-muted/50 border border-border">
+                              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{firm.name}</p>
                               <div className="flex items-center justify-between mt-1">
-                                  <p className="text-lg font-black text-slate-900">{fmt(firm.monto)}</p>
+                                  <p className="text-lg font-bold text-foreground">{fmt(firm.monto)}</p>
                                   <div className="w-2 h-2 rounded-full" style={{ backgroundColor: firm.color }} />
                               </div>
-                              <div className="w-full bg-slate-200 h-1 rounded-full mt-2 overflow-hidden">
-                                  <div 
+                              <div className="w-full bg-border h-1 rounded-full mt-2 overflow-hidden">
+                                  <div
                                       className="h-full rounded-full"
-                                      style={{ 
+                                      style={{
                                           width: `${(firm.monto / totalSpent) * 100}%`,
                                           backgroundColor: firm.color
                                       }}

@@ -24,7 +24,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { toast } from "sonner";
 import {
   Plus,
   Loader2,
@@ -34,6 +33,8 @@ import {
   X,
   CheckCircle2,
   AlertCircle,
+  ArrowLeft,
+  PartyPopper,
 } from "lucide-react";
 import { Controller } from "react-hook-form";
 
@@ -45,11 +46,16 @@ interface MockFile {
   progress: number;
 }
 
+type Step = "form" | "confirm" | "success";
+
 export function ExpenseFormDialog() {
   const [open, setOpen] = useState(false);
+  const [step, setStep] = useState<Step>("form");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedFirmId, setSelectedFirmId] = useState<string>("");
   const [mockFiles, setMockFiles] = useState<MockFile[]>([]);
+  const [pendingData, setPendingData] = useState<ExpenseFormValues | null>(null);
+  const [registeredSummary, setRegisteredSummary] = useState<{ amount: number; firmName: string; segment: string } | null>(null);
 
   const lawFirms = useAppStore((s) => s.lawFirms);
   const addExpense = useAppStore((s) => s.addExpense);
@@ -132,8 +138,15 @@ export function ExpenseFormDialog() {
     setMockFiles((prev) => prev.filter((f) => f.id !== fileId));
   };
 
-  const onSubmit = async (data: ExpenseFormValues) => {
-    if (!currentUser) return;
+  // Paso 1: validar el formulario y pasar a la pantalla de confirmación
+  const onSubmit = (data: ExpenseFormValues) => {
+    setPendingData(data);
+    setStep("confirm");
+  };
+
+  // Paso 2: el usuario confirma -> recién ahí se registra el gasto
+  const handleConfirm = async () => {
+    if (!currentUser || !pendingData) return;
     setIsSubmitting(true);
 
     // Simular delay de red
@@ -151,48 +164,145 @@ export function ExpenseFormDialog() {
       }));
 
     addExpense({
-      lawFirmId: data.lawFirmId,
-      proformaNum: data.proformaNum,
-      segment: data.segment,
-      expenseType: data.expenseType,
-      amount: data.amount,
-      date: data.date,
-      status: data.status,
-      description: data.description,
+      lawFirmId: pendingData.lawFirmId,
+      proformaNum: pendingData.proformaNum,
+      segment: pendingData.segment,
+      expenseType: pendingData.expenseType,
+      amount: pendingData.amount,
+      date: pendingData.date,
+      status: pendingData.status,
+      description: pendingData.description,
       createdBy: currentUser.id,
       attachments,
     });
 
-    const firmName = lawFirms.find((lf) => lf.id === data.lawFirmId)?.name;
+    const firmName = lawFirms.find((lf) => lf.id === pendingData.lawFirmId)?.name || "";
 
-    toast.success("¡Gasto registrado exitosamente! 🎉", {
-      description: `$${data.amount.toLocaleString("es-AR")} — ${firmName} (${data.segment})`,
-    });
+    setRegisteredSummary({ amount: pendingData.amount, firmName, segment: pendingData.segment });
+    setIsSubmitting(false);
+    setStep("success");
+  };
 
+  // Volver a editar el formulario desde la confirmación
+  const handleBackToForm = () => setStep("form");
+
+  const resetAll = () => {
     reset();
     setMockFiles([]);
     setSelectedFirmId("");
+    setPendingData(null);
+    setRegisteredSummary(null);
     setIsSubmitting(false);
-    setOpen(false);
+    setStep("form");
+  };
+
+  const handleOpenChange = (next: boolean) => {
+    setOpen(next);
+    if (!next) resetAll();
   };
 
   const formatCurrency = (value: number) =>
     `$${value.toLocaleString("es-AR")}`;
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger render={<Button className="gap-2 font-semibold cursor-pointer" />}>
           <Plus className="w-4 h-4" />
           Nuevo Gasto
       </DialogTrigger>
       <DialogContent className="sm:max-w-2xl max-h-[96vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl">Registrar Gasto</DialogTitle>
+          <DialogTitle className="text-xl">
+            {step === "form" ? "Registrar Gasto" : step === "confirm" ? "Confirmar registro" : "¡Gasto registrado!"}
+          </DialogTitle>
           <DialogDescription>
-            Ingresa los datos del gasto de recupero de cartera.
+            {step === "form"
+              ? "Ingresa los datos del gasto de recupero de cartera."
+              : step === "confirm"
+              ? "Revisá los datos antes de confirmar. Esta acción quedará registrada en la auditoría."
+              : "El gasto quedó cargado correctamente."}
           </DialogDescription>
         </DialogHeader>
 
+        {step === "confirm" && pendingData && (
+          <div className="mt-4 space-y-5">
+            <div className="rounded-xl border border-border bg-muted/40 divide-y divide-border overflow-hidden">
+              {[
+                { label: "Estudio Jurídico", value: lawFirms.find((lf) => lf.id === pendingData.lawFirmId)?.name || "—" },
+                { label: "Segmento", value: pendingData.segment },
+                { label: "Motivo", value: pendingData.expenseType },
+                { label: "Nro. Proforma", value: `#${pendingData.proformaNum}` },
+                { label: "Fecha", value: pendingData.date },
+                { label: "Estado inicial", value: pendingData.status },
+                ...(pendingData.description ? [{ label: "Descripción", value: pendingData.description }] : []),
+                { label: "Archivos adjuntos", value: mockFiles.length > 0 ? `${mockFiles.length} archivo(s)` : "Sin adjuntos" },
+              ].map((row) => (
+                <div key={row.label} className="flex items-center justify-between gap-4 px-4 py-2.5 text-sm">
+                  <span className="text-muted-foreground">{row.label}</span>
+                  <span className="font-medium text-foreground text-right">{row.value}</span>
+                </div>
+              ))}
+              <div className="flex items-center justify-between gap-4 px-4 py-3 bg-muted">
+                <span className="text-sm font-semibold text-foreground">Monto a registrar</span>
+                <span className="text-xl font-bold font-mono text-foreground">{formatCurrency(pendingData.amount)}</span>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1 h-11 gap-2 cursor-pointer"
+                onClick={handleBackToForm}
+                disabled={isSubmitting}
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Volver
+              </Button>
+              <Button
+                type="button"
+                className="flex-1 h-11 gap-2 font-semibold cursor-pointer"
+                onClick={handleConfirm}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Registrando...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-4 h-4" />
+                    Sí, confirmar
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {step === "success" && registeredSummary && (
+          <div className="mt-4 flex flex-col items-center text-center py-4 space-y-4 animate-fade-in-up">
+            <div className="w-14 h-14 rounded-full bg-success/10 flex items-center justify-center">
+              <CheckCircle2 className="w-7 h-7 text-success" />
+            </div>
+            <div className="space-y-1">
+              <p className="text-base font-semibold text-foreground flex items-center justify-center gap-1.5">
+                Gasto registrado exitosamente <PartyPopper className="w-4 h-4 text-warning" />
+              </p>
+              <p className="text-sm text-muted-foreground">
+                <span className="font-mono font-semibold text-foreground">{formatCurrency(registeredSummary.amount)}</span>
+                {" — "}
+                {registeredSummary.firmName} ({registeredSummary.segment})
+              </p>
+            </div>
+            <Button type="button" className="w-full h-11 font-semibold cursor-pointer" onClick={() => handleOpenChange(false)}>
+              Cerrar
+            </Button>
+          </div>
+        )}
+
+        {step === "form" && (
         <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-5 mt-4">
           {/* Estudio Jurídico */}
           <div className="space-y-2">
@@ -251,13 +361,15 @@ export function ExpenseFormDialog() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label>Segmento</Label>
-              <Select onValueChange={(val: string | null) => setValue("segment", val as "Personas" | "Empresas")}>
+              <Select onValueChange={(val: string | null) => setValue("segment", val as "Personas" | "Empresas" | "Retail" | "Canales Indirectos")}>
                 <SelectTrigger className="h-11 cursor-pointer">
                   <SelectValue placeholder="Segmento..." />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Personas" className="cursor-pointer">Personas</SelectItem>
                   <SelectItem value="Empresas" className="cursor-pointer">Empresas</SelectItem>
+                  <SelectItem value="Retail" className="cursor-pointer">Retail</SelectItem>
+                  <SelectItem value="Canales Indirectos" className="cursor-pointer">Canales Indirectos</SelectItem>
                 </SelectContent>
               </Select>
               {errors.segment && (
@@ -441,25 +553,16 @@ export function ExpenseFormDialog() {
             )}
           </div>
 
-          {/* Submit */}
+          {/* Submit -> pasa a la pantalla de confirmación */}
           <Button
             type="submit"
             className="w-full h-12 text-base font-semibold cursor-pointer"
-            disabled={isSubmitting}
           >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Registrando...
-              </>
-            ) : (
-              <>
-                <CheckCircle2 className="mr-2 h-4 w-4" />
-                Registrar Gasto
-              </>
-            )}
+            <CheckCircle2 className="mr-2 h-4 w-4" />
+            Revisar y confirmar
           </Button>
         </form>
+        )}
       </DialogContent>
     </Dialog>
   );

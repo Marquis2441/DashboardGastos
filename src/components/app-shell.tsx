@@ -10,17 +10,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
-    <div className="flex min-h-dvh relative overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
-      
+    <div className="flex min-h-dvh relative overflow-hidden bg-background transition-colors duration-300">
+
       {/* Mobile Toggle */}
       <div className="lg:hidden fixed top-3 right-3 z-50">
-        <Button 
-          variant="outline" 
-          size="icon" 
+        <Button
+          variant="outline"
+          size="icon"
           onClick={() => setIsOpen(!isOpen)}
-          className="w-10 h-10 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-slate-200 dark:border-slate-800 shadow-xl rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all active:scale-95"
+          className="w-10 h-10 bg-background/90 backdrop-blur-md border-border shadow-xl rounded-xl hover:bg-muted transition-all active:scale-95"
         >
-          {isOpen ? <X className="w-5 h-5 text-rose-500" /> : <Menu className="w-5 h-5 text-primary" />}
+          {isOpen ? <X className="w-5 h-5 text-foreground" /> : <Menu className="w-5 h-5 text-foreground" />}
         </Button>
       </div>
 

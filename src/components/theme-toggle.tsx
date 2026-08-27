@@ -29,8 +29,8 @@ export function ThemeToggle({ className }: { className?: string }) {
       size="icon-sm"
       onClick={() => setTheme(theme === "light" ? "dark" : "light")}
       className={cn(
-        "rounded-xl transition-all duration-500 relative overflow-hidden group/toggle",
-        "bg-slate-100 hover:bg-primary/10 text-slate-600 hover:text-primary dark:bg-slate-800 dark:hover:bg-primary/20 dark:text-slate-400 dark:hover:text-primary-foreground",
+        "rounded-lg transition-all duration-300 relative overflow-hidden group/toggle",
+        "bg-muted hover:bg-accent text-muted-foreground hover:text-foreground",
         className
       )}
     >

@@ -62,11 +62,23 @@ export default function RootLayout({
         >
           <Toaster
             position="top-right"
-            richColors
             closeButton
             toastOptions={{
-              duration: 3000,
-              style: { borderRadius: "12px" },
+              duration: 3500,
+              unstyled: false,
+              classNames: {
+                toast:
+                  "bg-card! text-foreground! border! border-border! rounded-xl! shadow-lg! p-4! gap-3! border-l-4!",
+                title: "text-foreground! font-semibold! text-sm!",
+                description: "text-muted-foreground! text-xs!",
+                icon: "text-foreground!",
+                closeButton:
+                  "bg-transparent! border-border! text-muted-foreground! hover:text-foreground!",
+                success: "border-l-success!",
+                error: "border-l-destructive!",
+                warning: "border-l-warning!",
+                info: "border-l-foreground/30!",
+              },
             }}
           />
           {currentUser ? (

@@ -34,6 +34,8 @@ import type { Segment, ExpenseType, Expense } from "@/lib/types";
 const SEGMENT_CONFIG: Record<Segment, { icon: React.ElementType; color: string }> = {
   Personas: { icon: Users, color: "#3B82F6" },
   Empresas: { icon: Briefcase, color: "#8B5CF6" },
+  Retail: { icon: Building2, color: "#F59E0B" },
+  "Canales Indirectos": { icon: Briefcase, color: "#8B5CF6" },
 };
 
 const TYPE_CONFIG: Record<ExpenseType, { icon: React.ElementType; color: string }> = {
@@ -77,7 +79,7 @@ function ExpenseTable({ expenses, lawFirms }: { expenses: Expense[]; lawFirms: R
               <TableCell className="text-sm font-bold text-primary font-mono">#{exp.proformaNum}</TableCell>
               <TableCell>
                 <Badge variant="outline" className="text-xs gap-1">
-                  {exp.segment === "Personas" ? <Users className="w-3 h-3" /> : <Briefcase className="w-3 h-3" />}
+                  {exp.segment === "Personas" ? <Users className="w-3 h-3" /> : exp.segment === "Empresas" ? <Briefcase className="w-3 h-3" /> : <Building2 className="w-3 h-3" />}
                   {exp.segment}
                 </Badge>
               </TableCell>
@@ -125,7 +127,7 @@ export default function EstudioDetailPage({ params }: { params: Promise<{ id: st
   if (!firm) {
     return (
       <AppShell>
-        <div className="text-center py-20">
+        <div className="p-4 md:p-6 lg:p-10 text-center py-20">
           <p className="text-muted-foreground">Estudio no encontrado.</p>
           <Link href="/estudios">
             <Button variant="ghost" className="mt-4 cursor-pointer">Volver</Button>
@@ -142,6 +144,15 @@ export default function EstudioDetailPage({ params }: { params: Promise<{ id: st
   // Group by segment
   const personasExpenses = firmExpenses.filter((e) => e.segment === "Personas");
   const empresasExpenses = firmExpenses.filter((e) => e.segment === "Empresas");
+  const retailExpenses = firmExpenses.filter((e) => e.segment === "Retail");
+  const canalesExpenses = firmExpenses.filter((e) => e.segment === "Canales Indirectos");
+
+  const segmentExpensesMap: Record<Segment, Expense[]> = {
+    Personas: personasExpenses,
+    Empresas: empresasExpenses,
+    Retail: retailExpenses,
+    "Canales Indirectos": canalesExpenses,
+  };
 
   // Group by type
   const tasaExpenses = firmExpenses.filter((e) => e.expenseType === "Tasa de Justicia");
@@ -152,7 +163,7 @@ export default function EstudioDetailPage({ params }: { params: Promise<{ id: st
 
   return (
     <AppShell>
-      <div className="space-y-8 animate-fade-in-up">
+      <div className="p-4 md:p-6 lg:p-10 space-y-8 max-w-[1600px] mx-auto w-full animate-fade-in-up">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -169,7 +180,7 @@ export default function EstudioDetailPage({ params }: { params: Promise<{ id: st
                 <Building2 className="w-6 h-6" style={{ color: firm.color }} />
               </div>
               <div>
-                <h1 className="text-2xl font-bold tracking-tight">{firm.name}</h1>
+                <h1 className="text-xl font-light uppercase tracking-wide">{firm.name}</h1>
                 <p className="text-sm text-muted-foreground">{firm.contactEmail}</p>
               </div>
             </div>
@@ -217,11 +228,11 @@ export default function EstudioDetailPage({ params }: { params: Promise<{ id: st
         </Card>
 
         {/* Summary by Segment */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {(["Personas", "Empresas"] as Segment[]).map((segment) => {
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+          {(["Personas", "Empresas", "Retail", "Canales Indirectos"] as Segment[]).map((segment) => {
             const cfg = SEGMENT_CONFIG[segment];
             const Icon = cfg.icon;
-            const exps = segment === "Personas" ? personasExpenses : empresasExpenses;
+            const exps = segmentExpensesMap[segment];
             const total = sumExpenses(exps);
 
             return (
@@ -274,10 +285,10 @@ export default function EstudioDetailPage({ params }: { params: Promise<{ id: st
         <div className="space-y-6">
           <h2 className="text-lg font-semibold">Desglose por Segmento</h2>
 
-          {(["Personas", "Empresas"] as Segment[]).map((segment) => {
+          {(["Personas", "Empresas", "Retail", "Canales Indirectos"] as Segment[]).map((segment) => {
             const cfg = SEGMENT_CONFIG[segment];
             const Icon = cfg.icon;
-            const exps = segment === "Personas" ? personasExpenses : empresasExpenses;
+            const exps = segmentExpensesMap[segment];
 
             return (
               <Card key={segment} className="border-border/50">

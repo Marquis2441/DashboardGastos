@@ -11,7 +11,7 @@ export type PaymentStatus =
   | "Pagado" 
   | "Rechazado";
 
-export type Segment = "Personas" | "Empresas";
+export type Segment = "Personas" | "Empresas" | "Retail" | "Canales Indirectos";
 export type ExpenseType = "Tasa de Justicia" | "Honorarios" | "Inicios Judiciales";
 
 export type Role = "ANALISTA" | "ESTUDIO" | "CCO" | "ADMIN";

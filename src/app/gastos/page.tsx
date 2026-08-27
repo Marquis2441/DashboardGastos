@@ -156,7 +156,7 @@ export default function GastosPage() {
                       placeholder="Buscar..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-9 h-9 md:h-10 bg-background border-slate-200 dark:border-slate-800 transition-all focus:ring-primary/20 text-sm"
+                      className="pl-9 h-9 md:h-10 bg-background border-border transition-all focus:ring-primary/20 text-sm"
                     />
                   </div>
 
@@ -174,7 +174,7 @@ export default function GastosPage() {
                       <ChevronDown className={cn("w-3.5 h-3.5 transition-transform duration-300", showFilters && "rotate-180")} />
                     </Button>
 
-                    <div className="md:hidden flex items-center px-3 h-9 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                    <div className="md:hidden flex items-center px-3 h-9 bg-muted rounded-lg border border-border">
                        <p className="text-[10px] font-black">
                         Total: <span className="text-primary">{fmt(totalFiltered)}</span>
                       </p>
@@ -190,9 +190,9 @@ export default function GastosPage() {
 
                 {/* Collapsible Filters */}
                 {showFilters && (
-                  <div className="grid grid-cols-1 xs:grid-cols-2 lg:flex lg:flex-wrap items-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800 animate-in fade-in slide-in-from-top-2">
+                  <div className="grid grid-cols-1 xs:grid-cols-2 lg:flex lg:flex-wrap items-end gap-3 pt-3 border-t border-border animate-in fade-in slide-in-from-top-2">
                     <div className="flex flex-col gap-1.5">
-                      <span className="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase ml-1">Estudio</span>
+                      <span className="text-[9px] md:text-[10px] font-bold text-muted-foreground uppercase ml-1">Estudio</span>
                       <Select 
                         value={filterFirm === "all" ? "" : filterFirm} 
                         onValueChange={(val: string | null) => setFilterFirm(val || "all")}
@@ -215,7 +215,7 @@ export default function GastosPage() {
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                      <span className="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase ml-1">Estado</span>
+                      <span className="text-[9px] md:text-[10px] font-bold text-muted-foreground uppercase ml-1">Estado</span>
                       <Select 
                         value={filterStatus === "all" ? "" : filterStatus} 
                         onValueChange={(val: string | null) => setFilterStatus(val || "all")}
@@ -240,7 +240,7 @@ export default function GastosPage() {
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                      <span className="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase ml-1">Segmento</span>
+                      <span className="text-[9px] md:text-[10px] font-bold text-muted-foreground uppercase ml-1">Segmento</span>
                       <Select 
                         value={filterSegment === "all" ? "" : filterSegment} 
                         onValueChange={(val: string | null) => setFilterSegment(val || "all")}
@@ -255,6 +255,8 @@ export default function GastosPage() {
                           <SelectItem value="" className="cursor-pointer">Todos los segmentos</SelectItem>
                           <SelectItem value="Personas" className="cursor-pointer">Personas</SelectItem>
                           <SelectItem value="Empresas" className="cursor-pointer">Empresas</SelectItem>
+                          <SelectItem value="Retail" className="cursor-pointer">Retail</SelectItem>
+                          <SelectItem value="Canales Indirectos" className="cursor-pointer">Canales Indirectos</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -277,14 +279,14 @@ export default function GastosPage() {
               </div>
 
               {/* Bottom bar with counts & bulk actions */}
-              <div className="flex flex-col sm:flex-row items-center justify-between mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 gap-4 sm:gap-0">
+              <div className="flex flex-col sm:flex-row items-center justify-between mt-4 pt-4 border-t border-border gap-4 sm:gap-0">
                 <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto">
-                  <p className="text-xs font-medium text-slate-500">
-                    <span className="font-bold text-slate-900 dark:text-slate-200">{filteredExpenses.length}</span> gastos encontrados
+                  <p className="text-xs font-medium text-muted-foreground">
+                    <span className="font-bold text-foreground">{filteredExpenses.length}</span> gastos encontrados
                   </p>
                   {selectedIds.length > 0 && (
                     <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-2">
-                      <div className="h-3 w-[1px] bg-slate-200 dark:bg-slate-800" />
+                      <div className="h-3 w-[1px] bg-border" />
                       <span className="text-xs font-bold text-primary">
                         {selectedIds.length} seleccionados
                       </span>
@@ -340,7 +342,7 @@ export default function GastosPage() {
                   <div className="overflow-x-auto custom-scrollbar pb-2">
                     <Table>
                       <TableHeader>
-                        <TableRow className="bg-slate-50/50 dark:bg-slate-900/50">
+                        <TableRow className="bg-muted/50">
                           <TableHead className="w-[40px]">
                             <Checkbox 
                               checked={selectedIds.length === filteredExpenses.length && filteredExpenses.length > 0}
@@ -406,8 +408,10 @@ export default function GastosPage() {
                                   <Badge variant="outline" className="text-xs gap-1 whitespace-nowrap">
                                     {exp.segment === "Personas" ? (
                                       <Users className="w-3 h-3" />
-                                    ) : (
+                                    ) : exp.segment === "Empresas" ? (
                                       <Briefcase className="w-3 h-3" />
+                                    ) : (
+                                      <Building2 className="w-3 h-3" />
                                     )}
                                     {exp.segment}
                                   </Badge>
@@ -498,7 +502,7 @@ export default function GastosPage() {
                           />
                         </div>
 
-                        <div className="flex items-center gap-3 py-2 border-y border-slate-100 dark:border-slate-800/50">
+                        <div className="flex items-center gap-3 py-2 border-y border-border">
                            <div
                               className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
                               style={{ backgroundColor: `${firm?.color || "#888"}15` }}
@@ -508,10 +512,10 @@ export default function GastosPage() {
                             <div className="flex-1 min-w-0">
                                <p className="text-sm font-bold truncate">{firm?.name}</p>
                                <div className="flex items-center gap-2 mt-0.5">
-                                 <Badge variant="outline" className="text-[9px] h-4 px-1.5 gap-1 py-0 border-slate-200">
-                                   {exp.segment === "Personas" ? <Users className="w-2 h-2" /> : <Briefcase className="w-2 h-2" />}
-                                   {exp.segment}
-                                 </Badge>
+                                 <Badge variant="outline" className="text-[9px] h-4 px-1.5 gap-1 py-0 border-border">
+                                    {exp.segment === "Personas" ? <Users className="w-2 h-2" /> : exp.segment === "Empresas" ? <Briefcase className="w-2 h-2" /> : <Building2 className="w-2 h-2" />}
+                                    {exp.segment}
+                                  </Badge>
                                  <span className="text-[10px] text-muted-foreground truncate">{exp.expenseType}</span>
                                </div>
                             </div>
@@ -520,13 +524,13 @@ export default function GastosPage() {
                         <div className="flex items-center justify-between">
                            <div className="flex gap-1.5">
                              {exp.attachments.map((att) => (
-                                <div key={att.id} className="w-7 h-7 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center border border-slate-200 dark:border-slate-700">
+                                <div key={att.id} className="w-7 h-7 rounded-lg bg-muted flex items-center justify-center border border-border">
                                   {att.type === "pdf" ? <FileText className="w-3.5 h-3.5 text-red-400" /> : <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-400" />}
                                 </div>
                              ))}
                              {exp.attachments.length === 0 && <span className="text-[10px] text-muted-foreground">Sin adjuntos</span>}
                            </div>
-                           <p className="text-lg font-black text-slate-900 dark:text-slate-50">{fmt(exp.amount)}</p>
+                           <p className="text-lg font-bold text-foreground">{fmt(exp.amount)}</p>
                         </div>
                       </CardContent>
                     </Card>

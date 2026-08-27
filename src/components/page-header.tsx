@@ -1,9 +1,9 @@
 "use client";
 
-import { Building2, Bell, CheckCircle2, XCircle, FileDown, Clock } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Bell } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ExpenseFormDialog } from "@/components/expense-form-dialog";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { useAppStore } from "@/lib/store";
 import { toast } from "sonner";
 import { BrandLogo } from "./brand-logo";
@@ -19,45 +19,55 @@ export function PageHeader({ title, subtitle, showUser = false }: PageHeaderProp
   const expenses = useAppStore((s) => s.expenses);
   const getExpensesByFirm = useAppStore((s) => s.getExpensesByFirm);
   const lawFirms = useAppStore((s) => s.lawFirms);
+  const dismissedNotificationIds = useAppStore((s) => s.dismissedNotificationIds);
+  const dismissNotifications = useAppStore((s) => s.dismissNotifications);
 
-  // Logic for specific notifications per role
+  const isDismissed = (id: string) => dismissedNotificationIds.includes(id);
+
+  // Logic for specific notifications per role (cada una con un id único para poder marcarla como vista)
   const inProcessExpenses = (currentUser?.role === "ADMIN")
-    ? expenses.filter(e => e.status === "En proceso de pago")
+    ? expenses.filter(e => e.status === "En proceso de pago" && !isDismissed(`inproc-${e.id}`))
     : [];
 
   const billedExpenses = (currentUser?.role === "CCO")
-    ? expenses.filter(e => e.status === "Facturado")
+    ? expenses.filter(e => e.status === "Facturado" && !isDismissed(`billed-${e.id}`))
     : [];
 
   const rejectedExpenses = (currentUser?.role === "ESTUDIO" && currentUser.lawFirmId)
-    ? getExpensesByFirm(currentUser.lawFirmId).filter(e => e.status === "Rechazado")
+    ? getExpensesByFirm(currentUser.lawFirmId).filter(e => e.status === "Rechazado" && !isDismissed(`rej-${e.id}`))
     : [];
 
   // Logic for OC limits (ADMIN/CCO)
   const lowOCFirms = (currentUser?.role === "ADMIN" || currentUser?.role === "CCO")
-    ? lawFirms.filter(f => (f.ocConsumed / f.ocLimit) > 0.85)
+    ? lawFirms.filter(f => (f.ocConsumed / f.ocLimit) > 0.85 && !isDismissed(`lowoc-${f.id}`))
     : [];
 
-  const hasNotifications = (currentUser?.role === "ESTUDIO")
-    ? rejectedExpenses.length > 0
+  const notificationCount = (currentUser?.role === "ESTUDIO")
+    ? rejectedExpenses.length
     : (currentUser?.role === "ADMIN")
-      ? (inProcessExpenses.length > 0 || lowOCFirms.length > 0)
+      ? inProcessExpenses.length + lowOCFirms.length
       : (currentUser?.role === "CCO")
-        ? (billedExpenses.length > 0 || lowOCFirms.length > 0)
-        : false;
+        ? billedExpenses.length + lowOCFirms.length
+        : 0;
+
+  const hasNotifications = notificationCount > 0;
 
   const handleNotificationClick = () => {
+    const seenIds: string[] = [];
+
     if (currentUser?.role === "ESTUDIO") {
       if (rejectedExpenses.length > 0) {
         toast.error(`Tienes ${rejectedExpenses.length} gasto(s) rechazado(s)`, {
           description: "Por favor, revisa tus gastos rechazados y corrige los problemas.",
           duration: 5000,
         });
+        seenIds.push(...rejectedExpenses.map(e => `rej-${e.id}`));
       } else {
         toast.info("No tienes notificaciones pendientes", {
           description: "Todos tus gastos están en orden."
         });
       }
+      dismissNotifications(seenIds);
       return;
     }
 
@@ -75,6 +85,7 @@ export function PageHeader({ title, subtitle, showUser = false }: PageHeaderProp
           duration: 6000,
         });
       });
+      seenIds.push(...inProcessExpenses.map(e => `inproc-${e.id}`));
     }
 
     if (currentUser?.role === "CCO" && billedExpenses.length > 0) {
@@ -90,6 +101,7 @@ export function PageHeader({ title, subtitle, showUser = false }: PageHeaderProp
           duration: 6000,
         });
       });
+      seenIds.push(...billedExpenses.map(e => `billed-${e.id}`));
     }
 
     if (lowOCFirms.length > 0) {
@@ -100,6 +112,7 @@ export function PageHeader({ title, subtitle, showUser = false }: PageHeaderProp
           duration: 5000,
         });
       });
+      seenIds.push(...lowOCFirms.map(f => `lowoc-${f.id}`));
     }
 
     if (!hasNotifications) {
@@ -107,73 +120,73 @@ export function PageHeader({ title, subtitle, showUser = false }: PageHeaderProp
         description: "Todo el sistema se encuentra al día."
       });
     }
+
+    dismissNotifications(seenIds);
   };
 
   return (
-    <div className="flex flex-col md:flex-row items-center justify-between bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-3 md:p-6 border-b border-slate-200 dark:border-slate-800 shadow-sm font-roboto transition-colors gap-3 md:gap-0 sticky top-0 z-30">
-      <div className="flex items-center gap-3 md:gap-6 w-full md:w-auto">
+    <div className="flex flex-col md:flex-row items-center justify-between bg-background/90 backdrop-blur-md p-3 md:p-6 border-b border-border shadow-sm transition-colors gap-3 md:gap-0 sticky top-0 z-30">
+      {/* Left: title only */}
+      <div className="flex items-center gap-3 md:gap-4 w-full md:w-auto">
         {/* Logo Crezcawebs - Hidden on mobile */}
-        <div className="hidden sm:flex items-center gap-2 group border-r border-slate-200 dark:border-slate-800 pr-6">
+        <div className="hidden sm:flex items-center gap-2 group border-r border-border pr-4">
           <BrandLogo />
-          <div className="text-xl tracking-tighter">
-            <span className="font-extrabold text-slate-950 dark:text-slate-100">crezca</span>
-            <span className="font-light text-primary">webs</span>
-          </div>
         </div>
 
         <div className="space-y-1 flex-1 md:flex-none">
-          <div className="flex items-center gap-2 md:gap-3">
-            <h1 className="text-lg md:text-2xl font-normal tracking-tight text-slate-900 dark:text-slate-100 leading-tight font-sf">
-              {title}
-            </h1>
-            <button
-              onClick={handleNotificationClick}
-              title={hasNotifications ? "Notificaciones pendientes" : "Sin notificaciones"}
-              className="relative p-1.5 md:p-2 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-300 group flex items-center justify-center cursor-pointer overflow-visible hover:scale-105 active:scale-95 shrink-0"
-            >
-              <Bell className={cn(
-                "w-4 h-4 md:w-5 md:h-5 transition-all duration-300",
-                hasNotifications
-                  ? "text-orange-500 stroke-[2.5px] drop-shadow-[0_0_8px_rgba(249,115,22,0.3)]"
-                  : "text-slate-400 dark:text-slate-500 group-hover:text-primary"
-              )} />
-              {hasNotifications && (
-                <div className="absolute -top-0.5 -right-0.5 flex h-2.5 w-2.5 md:h-3 md:w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 md:h-3 md:w-3 bg-rose-500 border-2 border-white dark:border-slate-900 shadow-sm"></span>
-                </div>
-              )}
-            </button>
-          </div>
+          <h1 className="text-base md:text-xl font-light uppercase tracking-wide text-foreground leading-tight">
+            {title}
+          </h1>
           {subtitle && (
-            <p className="text-primary/80 font-bold uppercase tracking-widest text-[8px] md:text-[10px] opacity-80">
+            <p className="text-muted-foreground font-semibold uppercase tracking-widest text-[8px] md:text-[10px]">
               {subtitle}
             </p>
           )}
         </div>
       </div>
 
-      <div className="flex items-center justify-between md:justify-end gap-2 md:gap-4 w-full md:w-auto pt-2 md:pt-0 border-t md:border-t-0 border-slate-100 dark:border-slate-800/50">
-        {showUser && currentUser && (
-          <div className="flex items-center gap-2 px-2 md:px-4 py-1.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200/60 dark:border-slate-700/50">
-            <Avatar className="w-7 h-7 md:w-10 md:h-10 border-2 border-primary/10">
-              <AvatarFallback className="bg-primary/5 dark:bg-primary/10 text-[9px] md:text-xs text-primary uppercase font-bold">
-                {currentUser.name.split(" ").map(n => n[0]).join("").slice(0, 2)}
-              </AvatarFallback>
-            </Avatar>
-            <div className="text-left md:text-right">
-              <p className="text-[10px] md:text-xs font-bold text-slate-900 dark:text-slate-100 leading-none">
-                {currentUser.name}
-              </p>
-              <p className="text-[8px] md:text-[10px] text-slate-500 dark:text-slate-400 uppercase font-black tracking-tighter">
-                {currentUser.role === 'ADMIN' ? 'Admin' : currentUser.role === 'CCO' ? 'CCO' : 'Estudio'}
-              </p>
+      {/* Right: every icon + avatar together */}
+      <div className="flex items-center justify-between md:justify-end gap-2 md:gap-3 w-full md:w-auto pt-2 md:pt-0 border-t md:border-t-0 border-border">
+        <div className="flex items-center gap-1.5 md:gap-2">
+          <ThemeToggle className="h-8 w-8 md:h-9 md:w-9" />
+
+          <button
+            onClick={handleNotificationClick}
+            title={hasNotifications ? "Notificaciones pendientes" : "Sin notificaciones"}
+            className="relative h-8 w-8 md:h-9 md:w-9 rounded-lg bg-muted hover:bg-accent transition-all duration-200 flex items-center justify-center cursor-pointer shrink-0"
+          >
+            <Bell className="w-4 h-4 md:w-[18px] md:h-[18px] text-foreground" />
+            {hasNotifications && (
+              <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-destructive text-white text-[9px] font-bold leading-none flex items-center justify-center border-2 border-background">
+                {notificationCount > 9 ? "9+" : notificationCount}
+              </span>
+            )}
+          </button>
+
+          {showUser && currentUser && (
+            <div className="flex items-center gap-2 pl-1.5 md:pl-2">
+              <Avatar className="w-8 h-8 md:w-9 md:h-9 border border-border">
+                <AvatarFallback className="bg-muted text-[10px] md:text-xs text-foreground uppercase font-bold">
+                  {currentUser.name.split(" ").map(n => n[0]).join("").slice(0, 2)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="hidden lg:block text-left">
+                <p className="text-xs font-bold text-foreground leading-none">
+                  {currentUser.name}
+                </p>
+                <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter mt-0.5">
+                  {currentUser.role === 'ADMIN' ? 'Admin' : currentUser.role === 'CCO' ? 'CCO' : 'Estudio'}
+                </p>
+              </div>
             </div>
+          )}
+        </div>
+
+        {currentUser?.role !== "CCO" && (
+          <div className="flex-1 md:flex-none flex justify-end">
+            <ExpenseFormDialog />
           </div>
         )}
-        <div className="flex-1 md:flex-none flex justify-end">
-          {currentUser?.role !== "CCO" && <ExpenseFormDialog />}
-        </div>
       </div>
     </div>
   );

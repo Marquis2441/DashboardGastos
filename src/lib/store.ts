@@ -27,6 +27,10 @@ const MOCK_LAW_FIRMS: LawFirm[] = [
   { id: "lf2", name: "General Collect", ocLimit: 4000000, ocConsumed: 2100000, contactEmail: "contacto@generalcollect.com", color: "#8B5CF6" },
   { id: "lf3", name: "Sanchez", ocLimit: 3500000, ocConsumed: 980000, contactEmail: "contacto@sanchez.com", color: "#10B981" },
   { id: "lf4", name: "Garcia Porcel", ocLimit: 3000000, ocConsumed: 2750000, contactEmail: "contacto@garciaporcel.com", color: "#F59E0B" },
+  { id: "lf5", name: "Roth", ocLimit: 2500000, ocConsumed: 800000, contactEmail: "contacto@roth.com", color: "#EF4444" },
+  { id: "lf6", name: "Personal Collect", ocLimit: 2000000, ocConsumed: 600000, contactEmail: "contacto@personalcollect.com", color: "#EC4899" },
+  { id: "lf7", name: "General Collect (Clean)", ocLimit: 3200000, ocConsumed: 1100000, contactEmail: "contacto@generalcollectclean.com", color: "#06B6D4" },
+  { id: "lf8", name: "Contacto Garantido", ocLimit: 2800000, ocConsumed: 950000, contactEmail: "contacto@contactogarantido.com", color: "#F97316" },
 ];
 
 const now = new Date().toISOString();
@@ -106,6 +110,78 @@ const MOCK_EXPENSES: Expense[] = [
       { id: "at14", action: "Estado cambiado", previousValue: "Ingresado", newValue: "En proceso de pago", userId: "u3", userName: "Carlos López", timestamp: "2026-02-15T10:00:00Z" },
     ],
   },
+  {
+    id: "e9", lawFirmId: "lf5", proformaNum: 5001, segment: "Retail", expenseType: "Honorarios",
+    amount: 420000, date: "2026-03-10", status: "Ingresado", description: "Honorarios retail Q1",
+    attachments: [], createdBy: "u1", createdAt: "2026-03-10T09:00:00Z",
+    auditTrail: [
+      { id: "at15", action: "Creado", newValue: "Ingresado", userId: "u1", userName: "Analista de Gastos", timestamp: "2026-03-10T09:00:00Z" },
+    ],
+  },
+  {
+    id: "e10", lawFirmId: "lf5", proformaNum: 5002, segment: "Canales Indirectos", expenseType: "Tasa de Justicia",
+    amount: 310000, date: "2026-03-12", status: "A facturar", description: "Tasa canales indirectos",
+    attachments: [], createdBy: "u1", createdAt: "2026-03-12T10:00:00Z",
+    auditTrail: [
+      { id: "at16", action: "Creado", newValue: "Ingresado", userId: "u1", userName: "Analista de Gastos", timestamp: "2026-03-12T10:00:00Z" },
+      { id: "at16b", action: "Estado cambiado", previousValue: "Ingresado", newValue: "A facturar", userId: "u1", userName: "Analista de Gastos", timestamp: "2026-03-13T10:00:00Z" },
+    ],
+  },
+  {
+    id: "e11", lawFirmId: "lf6", proformaNum: 6001, segment: "Retail", expenseType: "Inicios Judiciales",
+    amount: 550000, date: "2026-02-18", status: "Pagado", description: "Inicios judiciales retail febrero",
+    attachments: [{ id: "a4", name: "factura_retail.pdf", type: "pdf", size: 200000, uploadedBy: "u1", uploadedAt: now }],
+    createdBy: "u1", createdAt: "2026-02-18T10:00:00Z",
+    auditTrail: [
+      { id: "at17", action: "Creado", newValue: "Ingresado", userId: "u1", userName: "Analista de Gastos", timestamp: "2026-02-18T10:00:00Z" },
+      { id: "at18", action: "Estado cambiado", previousValue: "Ingresado", newValue: "Pagado", userId: "u3", userName: "Operador CCO", timestamp: "2026-02-25T10:00:00Z" },
+    ],
+  },
+  {
+    id: "e12", lawFirmId: "lf6", proformaNum: 6002, segment: "Canales Indirectos", expenseType: "Honorarios",
+    amount: 280000, date: "2026-03-05", status: "En proceso de pago", description: "Honorarios canales indirectos",
+    attachments: [], createdBy: "u2", createdAt: "2026-03-05T08:00:00Z",
+    auditTrail: [
+      { id: "at19", action: "Creado", newValue: "Ingresado", userId: "u2", userName: "Estudio Bancalari", timestamp: "2026-03-05T08:00:00Z" },
+      { id: "at20", action: "Estado cambiado", previousValue: "Ingresado", newValue: "En proceso de pago", userId: "u3", userName: "Operador CCO", timestamp: "2026-03-08T10:00:00Z" },
+    ],
+  },
+  {
+    id: "e13", lawFirmId: "lf7", proformaNum: 7001, segment: "Empresas", expenseType: "Honorarios",
+    amount: 690000, date: "2026-01-22", status: "Pagado", description: "Honorarios empresas enero",
+    attachments: [], createdBy: "u1", createdAt: "2026-01-22T09:00:00Z",
+    auditTrail: [
+      { id: "at21", action: "Creado", newValue: "Ingresado", userId: "u1", userName: "Analista de Gastos", timestamp: "2026-01-22T09:00:00Z" },
+      { id: "at22", action: "Estado cambiado", previousValue: "Ingresado", newValue: "Pagado", userId: "u3", userName: "Operador CCO", timestamp: "2026-01-30T11:00:00Z" },
+    ],
+  },
+  {
+    id: "e14", lawFirmId: "lf7", proformaNum: 7002, segment: "Retail", expenseType: "Tasa de Justicia",
+    amount: 220000, date: "2026-02-14", status: "Ingresado", description: "Tasa de justicia retail",
+    attachments: [], createdBy: "u1", createdAt: "2026-02-14T10:00:00Z",
+    auditTrail: [
+      { id: "at23", action: "Creado", newValue: "Ingresado", userId: "u1", userName: "Analista de Gastos", timestamp: "2026-02-14T10:00:00Z" },
+    ],
+  },
+  {
+    id: "e15", lawFirmId: "lf8", proformaNum: 8001, segment: "Canales Indirectos", expenseType: "Inicios Judiciales",
+    amount: 480000, date: "2026-03-01", status: "Ingresado Analista", description: "Inicios judiciales canales",
+    attachments: [{ id: "a5", name: "factura_ci.pdf", type: "pdf", size: 170000, uploadedBy: "u1", uploadedAt: now }],
+    createdBy: "u1", createdAt: "2026-03-01T08:00:00Z",
+    auditTrail: [
+      { id: "at24", action: "Creado", newValue: "Ingresado", userId: "u1", userName: "Analista de Gastos", timestamp: "2026-03-01T08:00:00Z" },
+      { id: "at25", action: "Estado cambiado", previousValue: "Ingresado", newValue: "Ingresado Analista", userId: "u1", userName: "Analista de Gastos", timestamp: "2026-03-05T10:00:00Z" },
+    ],
+  },
+  {
+    id: "e16", lawFirmId: "lf8", proformaNum: 8002, segment: "Personas", expenseType: "Honorarios",
+    amount: 370000, date: "2026-02-20", status: "Rechazado", description: "Honorarios personas febrero",
+    attachments: [], createdBy: "u2", createdAt: "2026-02-20T11:00:00Z",
+    auditTrail: [
+      { id: "at26", action: "Creado", newValue: "Ingresado", userId: "u2", userName: "Estudio Bancalari", timestamp: "2026-02-20T11:00:00Z" },
+      { id: "at27", action: "Estado cambiado", previousValue: "Ingresado", newValue: "Rechazado", userId: "u1", userName: "Analista de Gastos", timestamp: "2026-02-22T09:00:00Z" },
+    ],
+  },
 ];
 
 // ==========================================
@@ -133,6 +209,10 @@ interface AppState {
   getExpensesByFirm: (lawFirmId: string) => Expense[];
   getExpensesByFirmAndSegment: (lawFirmId: string, segment: Segment) => Expense[];
   getExpensesByFirmAndType: (lawFirmId: string, expenseType: ExpenseType) => Expense[];
+
+  // Notificaciones
+  dismissedNotificationIds: string[];
+  dismissNotifications: (ids: string[]) => void;
 }
 
 // ==========================================
@@ -298,13 +378,24 @@ export const useAppStore = create<AppState>()(
 
       getExpensesByFirmAndType: (lawFirmId: string, expenseType: ExpenseType) =>
         get().expenses.filter((e) => e.lawFirmId === lawFirmId && e.expenseType === expenseType),
+
+      // Notificaciones
+      dismissedNotificationIds: [],
+
+      dismissNotifications: (ids: string[]) => {
+        if (ids.length === 0) return;
+        set((state) => ({
+          dismissedNotificationIds: Array.from(new Set([...state.dismissedNotificationIds, ...ids])),
+        }));
+      },
     }),
     {
       name: "gestion-financiera-demo-storage",
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({ 
-        lawFirms: state.lawFirms, 
-        expenses: state.expenses 
+      partialize: (state) => ({
+        lawFirms: state.lawFirms,
+        expenses: state.expenses,
+        dismissedNotificationIds: state.dismissedNotificationIds,
       }), // No persisto currentUser para forzar login siempre
     }
   )
