@@ -317,7 +317,7 @@ export function ExpenseFormDialog() {
                 }
               }}
             >
-              <SelectTrigger className={`h-11 ${currentUser?.role === "ESTUDIO" ? "bg-slate-50 dark:bg-slate-900/50 cursor-not-allowed" : "cursor-pointer"}`}>
+              <SelectTrigger className={`h-11 ${currentUser?.role === "ESTUDIO" ? "bg-muted cursor-not-allowed" : "cursor-pointer"}`}>
                 <SelectValue>
                   {selectedFirmId ? lawFirms.find(f => f.id === selectedFirmId)?.name : "Seleccionar estudio..."}
                 </SelectValue>
@@ -326,7 +326,7 @@ export function ExpenseFormDialog() {
                 {lawFirms.map((lf) => (
                   <SelectItem key={lf.id} value={lf.id} className="cursor-pointer">
                     <span className="font-medium">{lf.name}</span>
-                    <span className="ml-auto text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-2 py-0.5 rounded-md font-bold whitespace-nowrap">
+                    <span className="ml-auto text-[10px] bg-muted text-muted-foreground px-2 py-0.5 rounded-md font-bold whitespace-nowrap">
                       DISP: {formatCurrency(Math.max(0, (lf.ocLimit || 0) - (lf.ocConsumed || 0)))}
                     </span>
                   </SelectItem>
@@ -345,12 +345,12 @@ export function ExpenseFormDialog() {
                       width: `${Math.min(100, ((lawFirms.find(lf => lf.id === selectedFirmId)?.ocConsumed || 0) / (lawFirms.find(lf => lf.id === selectedFirmId)?.ocLimit || 1)) * 100)}%`,
                       backgroundColor:
                         ((lawFirms.find(lf => lf.id === selectedFirmId)?.ocConsumed || 0) / (lawFirms.find(lf => lf.id === selectedFirmId)?.ocLimit || 1)) > 0.85
-                          ? "oklch(0.65 0.20 25)"
-                          : "oklch(0.60 0.18 260)",
+                          ? "var(--destructive)"
+                          : "var(--foreground)",
                     }}
                   />
                 </div>
-                <span className="text-slate-900 dark:text-slate-100 font-black text-sm tabular-nums">
+                <span className="text-foreground font-black text-sm tabular-nums">
                   {formatCurrency(availableBalance)} disponible
                 </span>
               </div>

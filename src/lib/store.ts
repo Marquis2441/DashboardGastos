@@ -392,6 +392,23 @@ export const useAppStore = create<AppState>()(
     {
       name: "gestion-financiera-demo-storage",
       storage: createJSONStorage(() => localStorage),
+      // Subir esta versión + agregar la migración correspondiente cada vez que se
+      // sumen estudios/gastos nuevos al mock, para que quien ya tenga datos viejos
+      // guardados en localStorage los reciba sin perder lo que generó en su sesión.
+      version: 2,
+      migrate: (persistedState, version) => {
+        const state = persistedState as { lawFirms?: LawFirm[]; expenses?: Expense[] };
+        if (version < 2) {
+          const knownIds = new Set((state.lawFirms || []).map((f) => f.id));
+          const missingFirms = MOCK_LAW_FIRMS.filter((f) => !knownIds.has(f.id));
+          state.lawFirms = [...(state.lawFirms || []), ...missingFirms];
+
+          const knownExpenseIds = new Set((state.expenses || []).map((e) => e.id));
+          const missingExpenses = MOCK_EXPENSES.filter((e) => !knownExpenseIds.has(e.id));
+          state.expenses = [...(state.expenses || []), ...missingExpenses];
+        }
+        return state;
+      },
       partialize: (state) => ({
         lawFirms: state.lawFirms,
         expenses: state.expenses,

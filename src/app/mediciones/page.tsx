@@ -81,7 +81,7 @@ export default function MedicionesPage() {
 
   return (
     <AppShell>
-      <div className="flex flex-col min-h-screen animate-fade-in-up font-roboto">
+      <div className="flex flex-col min-h-screen animate-fade-in-up">
         {/* Header */}
         <PageHeader 
           title="Mediciones y Análisis"

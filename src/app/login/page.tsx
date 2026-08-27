@@ -38,34 +38,34 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex bg-white font-sans animate-in fade-in duration-700">
-      
+    <div className="min-h-screen flex bg-background font-sans animate-in fade-in duration-700">
+
       {/* Left Column - Form */}
-      <div className="w-full lg:w-[45%] xl:w-[40%] flex flex-col justify-center items-center p-8 bg-white z-10">
-        
+      <div className="w-full lg:w-[45%] xl:w-[40%] flex flex-col justify-center items-center p-8 bg-background z-10">
+
         <div className="w-full max-w-[380px] flex flex-col">
-          
+
           {/* Logo Area */}
-          <div className="flex items-center gap-1 mb-16 justify-center lg:justify-start">
-            <Asterisk className="w-8 h-8 text-black" strokeWidth={3} />
-            <span className="text-3xl font-black tracking-tighter text-black uppercase">
-              RA <span className="font-light text-slate-500 text-lg tracking-normal">Gastos</span>
+          <div className="flex items-center gap-1.5 mb-16 justify-center lg:justify-start">
+            <Asterisk className="w-7 h-7 text-foreground shrink-0" strokeWidth={3} />
+            <span className="text-2xl font-black tracking-tighter text-foreground uppercase">
+              RA <span className="font-light text-muted-foreground text-base tracking-normal">Gastos</span>
             </span>
           </div>
 
-          <h1 className="text-[28px] font-bold text-slate-900 mb-2 font-inter tracking-tight">
+          <h1 className="text-[28px] font-bold text-foreground mb-2 tracking-tight">
             Bienvenido!
           </h1>
-          <p className="text-[13px] text-slate-500 mb-10 font-medium">
+          <p className="text-[13px] text-muted-foreground mb-10 font-medium">
             Por favor ingrese los datos solicitados a continuación.
           </p>
 
           {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" autoComplete="off">
             <div className="space-y-4">
-              
+
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-xs font-semibold text-slate-700">
+                <Label htmlFor="email" className="text-xs font-semibold text-foreground">
                   Correo electrónico
                 </Label>
                 <div className="relative group">
@@ -74,19 +74,19 @@ export default function LoginPage() {
                     type="text"
                     autoComplete="new-password"
                     {...register("email")}
-                    className="h-[46px] bg-[#f0f4f8] border-transparent rounded-lg px-4 text-sm text-slate-900 focus:bg-white focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all font-sans"
+                    className="h-[46px] bg-muted border-transparent rounded-lg px-4 text-sm text-foreground focus:bg-background focus:border-ring/50 focus:ring-4 focus:ring-ring/10 transition-all"
                   />
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
                     <Mail className="w-4 h-4" />
                   </div>
                 </div>
                 {errors.email && (
-                  <p className="text-[10px] text-rose-500 font-medium ml-1">{errors.email.message}</p>
+                  <p className="text-[10px] text-destructive font-medium ml-1">{errors.email.message}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-xs font-semibold text-slate-700">
+                <Label htmlFor="password" className="text-xs font-semibold text-foreground">
                   Contraseña
                 </Label>
                 <div className="relative group">
@@ -95,22 +95,22 @@ export default function LoginPage() {
                     type="password"
                     autoComplete="new-password"
                     {...register("password")}
-                    className="h-[46px] bg-[#f0f4f8] border-transparent rounded-lg px-4 pr-10 text-sm text-slate-900 focus:bg-white focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all font-sans"
+                    className="h-[46px] bg-muted border-transparent rounded-lg px-4 pr-10 text-sm text-foreground focus:bg-background focus:border-ring/50 focus:ring-4 focus:ring-ring/10 transition-all"
                   />
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
                     <Lock className="w-4 h-4" />
                   </div>
                 </div>
                 {errors.password && (
-                  <p className="text-[10px] text-rose-500 font-medium ml-1">{errors.password.message}</p>
+                  <p className="text-[10px] text-destructive font-medium ml-1">{errors.password.message}</p>
                 )}
               </div>
 
             </div>
 
-            <Button 
-              type="submit" 
-              className="w-full h-[46px] bg-[#0a235c] hover:bg-[#071945] text-white font-medium rounded-lg transition-all font-sans text-sm shadow-md mt-4" 
+            <Button
+              type="submit"
+              className="w-full h-[46px] font-medium rounded-lg transition-all text-sm shadow-md mt-4"
               disabled={isLoading}
             >
               {isLoading ? (
@@ -119,13 +119,13 @@ export default function LoginPage() {
                 "Ingresar"
               )}
             </Button>
-            
+
             <div className="pt-2">
-              <button type="button" className="text-[#0a235c] hover:text-blue-800 text-[12px] font-medium transition-colors cursor-pointer">
+              <button type="button" className="text-foreground hover:text-muted-foreground text-[12px] font-medium transition-colors cursor-pointer">
                 ¿Olvidaste la contraseña?
               </button>
             </div>
-            
+
           </form>
 
         </div>

@@ -13,7 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Building2, ArrowUpRight, Mail, ChevronRight, Users, Briefcase } from "lucide-react";
+import { Building2, ArrowUpRight, Mail, ChevronRight, Users, Briefcase, Store } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/page-header";
@@ -55,9 +55,9 @@ export default function EstudiosPage() {
 
         <div className="p-4 md:p-6 lg:p-10 space-y-8 max-w-[1600px] mx-auto w-full">
           {/* Desktop Table View */}
-          <Card className="hidden lg:block border-border/50 shadow-sm overflow-hidden bg-card">
+          <Card className="hidden lg:block border-border/50 shadow-sm overflow-hidden bg-card py-0">
               <CardContent className="p-0">
-                <div className="overflow-x-auto rounded-xl">
+                <div className="overflow-x-auto">
                   <Table>
                   <TableHeader>
                     <TableRow className="bg-muted/50 hover:bg-muted/50 border-b border-border">
@@ -90,10 +90,10 @@ export default function EstudiosPage() {
                       const isExpanded = expandedFirms.includes(firm.id);
 
                       const segmentBreakdowns = [
-                        { label: "Personas", exps: personasExpenses, consumed: personasConsumed, color: "#3b82f6", bgClass: "bg-blue-50 dark:bg-blue-900/20", textClass: "text-blue-600 dark:text-blue-400", barClass: "bg-blue-500", badgeClass: "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400" },
-                        { label: "Empresas", exps: empresasExpenses, consumed: empresasConsumed, color: "#6366f1", bgClass: "bg-indigo-50 dark:bg-indigo-900/20", textClass: "text-indigo-600 dark:text-indigo-400", barClass: "bg-indigo-500", badgeClass: "bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400" },
-                        { label: "Retail", exps: retailExpenses, consumed: retailConsumed, color: "#f59e0b", bgClass: "bg-amber-50 dark:bg-amber-900/20", textClass: "text-amber-600 dark:text-amber-400", barClass: "bg-amber-500", badgeClass: "bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400" },
-                        { label: "Canales Ind.", exps: canalesExpenses, consumed: canalesConsumed, color: "#8b5cf6", bgClass: "bg-purple-50 dark:bg-purple-900/20", textClass: "text-purple-600 dark:text-purple-400", barClass: "bg-purple-500", badgeClass: "bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400" },
+                        { label: "Personas", icon: Users, exps: personasExpenses, consumed: personasConsumed, color: "#3b82f6", bgClass: "bg-blue-50 dark:bg-blue-900/20", textClass: "text-blue-600 dark:text-blue-400", barClass: "bg-blue-500", badgeClass: "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400" },
+                        { label: "Empresas", icon: Briefcase, exps: empresasExpenses, consumed: empresasConsumed, color: "#6366f1", bgClass: "bg-indigo-50 dark:bg-indigo-900/20", textClass: "text-indigo-600 dark:text-indigo-400", barClass: "bg-indigo-500", badgeClass: "bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400" },
+                        { label: "Retail", icon: Store, exps: retailExpenses, consumed: retailConsumed, color: "#f59e0b", bgClass: "bg-amber-50 dark:bg-amber-900/20", textClass: "text-amber-600 dark:text-amber-400", barClass: "bg-amber-500", badgeClass: "bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400" },
+                        { label: "Canales Ind.", icon: Building2, exps: canalesExpenses, consumed: canalesConsumed, color: "#8b5cf6", bgClass: "bg-purple-50 dark:bg-purple-900/20", textClass: "text-purple-600 dark:text-purple-400", barClass: "bg-purple-500", badgeClass: "bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400" },
                       ];
 
                       return (
@@ -176,7 +176,7 @@ export default function EstudiosPage() {
                                       <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3">
                                           <div className={`w-10 h-10 rounded-xl ${seg.bgClass} flex items-center justify-center`}>
-                                            <Users className={`w-5 h-5 ${seg.textClass}`} />
+                                            <seg.icon className={`w-5 h-5 ${seg.textClass}`} />
                                           </div>
                                           <div>
                                             <p className="font-bold text-foreground uppercase text-xs tracking-tight">{seg.label}</p>
