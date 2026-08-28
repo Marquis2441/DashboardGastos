@@ -35,6 +35,7 @@ import {
   AlertCircle,
   ArrowLeft,
   PartyPopper,
+  Clock,
 } from "lucide-react";
 import { Controller } from "react-hook-form";
 
@@ -92,6 +93,9 @@ export function ExpenseFormDialog() {
     if (open && currentUser?.role === "ESTUDIO" && currentUser.lawFirmId) {
       setValue("lawFirmId", currentUser.lawFirmId);
       setSelectedFirmId(currentUser.lawFirmId);
+      // Un estudio solo puede cargar gastos en "Ingresado": el analista es quien
+      // valida y da el OK para pasar a "A facturar" (control fiscal/documental).
+      setValue("status", "Ingresado");
     }
   }, [open, currentUser, setValue]);
 
@@ -446,17 +450,28 @@ export function ExpenseFormDialog() {
             </div>
             <div className="space-y-2">
               <Label>Estado de Pago</Label>
-              <Select defaultValue="Ingresado" onValueChange={(val: string | null) => setValue("status", val as any)}>
-                <SelectTrigger className="h-11 cursor-pointer">
-                  <SelectValue placeholder="Estado..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Ingresado" className="cursor-pointer">Ingresado</SelectItem>
-                  <SelectItem value="En proceso de pago" className="cursor-pointer">En proceso de pago</SelectItem>
-                  <SelectItem value="Pagado" className="cursor-pointer">Pagado</SelectItem>
-                  <SelectItem value="Rechazado" className="cursor-pointer">Rechazado</SelectItem>
-                </SelectContent>
-              </Select>
+              {currentUser?.role === "ESTUDIO" ? (
+                // Un estudio jurídico solo puede cargar gastos en "Ingresado".
+                // El analista es quien valida y habilita el paso a "A facturar".
+                <div className="h-11 flex items-center gap-2 px-3 rounded-lg border border-border bg-muted text-sm text-muted-foreground">
+                  <Clock className="w-4 h-4 shrink-0" />
+                  Ingresado
+                  <span className="ml-auto text-[10px] uppercase tracking-wider">Pendiente de validación</span>
+                </div>
+              ) : (
+                <Select defaultValue="Ingresado" onValueChange={(val: string | null) => setValue("status", val as any)}>
+                  <SelectTrigger className="h-11 cursor-pointer">
+                    <SelectValue placeholder="Estado..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Ingresado" className="cursor-pointer">Ingresado</SelectItem>
+                    <SelectItem value="OK Supervisor" className="cursor-pointer">OK Supervisor</SelectItem>
+                    <SelectItem value="En proceso de pago" className="cursor-pointer">En proceso de pago</SelectItem>
+                    <SelectItem value="Pagado" className="cursor-pointer">Pagado</SelectItem>
+                    <SelectItem value="Rechazado" className="cursor-pointer">Rechazado</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
             </div>
           </div>
 

@@ -20,6 +20,7 @@ const MOCK_USERS: User[] = [
   { id: "u2", name: "Estudio Bancalari", email: "contacto@bancalari.com", role: "ESTUDIO", lawFirmId: "lf1" },
   { id: "u3", name: "Operador CCO", email: "cco@banco.com", role: "CCO" },
   { id: "u4", name: "Administrador General", email: "admin@banco.com", role: "ADMIN" },
+  { id: "u5", name: "Supervisor de Gastos", email: "supervisor@banco.com", role: "SUPERVISOR" },
 ];
 
 const MOCK_LAW_FIRMS: LawFirm[] = [
@@ -48,11 +49,11 @@ const MOCK_EXPENSES: Expense[] = [
   },
   {
     id: "e2", lawFirmId: "lf1", proformaNum: 1025, segment: "Empresas", expenseType: "Honorarios",
-    amount: 500000, date: "2026-02-20", status: "En proceso de pago", description: "Honorarios prof. febrero",
+    amount: 500000, date: "2026-02-20", status: "OK Supervisor", description: "Honorarios prof. febrero",
     attachments: [], createdBy: "u2", createdAt: "2026-02-20T09:00:00Z",
     auditTrail: [
       { id: "at3", action: "Creado", newValue: "Ingresado", userId: "u2", userName: "Ana García", timestamp: "2026-02-20T09:00:00Z" },
-      { id: "at4", action: "Estado cambiado", previousValue: "Ingresado", newValue: "En proceso de pago", userId: "u1", userName: "Marcos Rossi", timestamp: "2026-02-25T11:00:00Z" },
+      { id: "at4", action: "Estado cambiado", previousValue: "Ingresado", newValue: "OK Supervisor", userId: "u1", userName: "Marcos Rossi", timestamp: "2026-02-25T11:00:00Z" },
     ],
   },
   {
@@ -107,7 +108,8 @@ const MOCK_EXPENSES: Expense[] = [
     attachments: [], createdBy: "u2", createdAt: "2026-02-10T09:00:00Z",
     auditTrail: [
       { id: "at13", action: "Creado", newValue: "Ingresado", userId: "u2", userName: "Ana García", timestamp: "2026-02-10T09:00:00Z" },
-      { id: "at14", action: "Estado cambiado", previousValue: "Ingresado", newValue: "En proceso de pago", userId: "u3", userName: "Carlos López", timestamp: "2026-02-15T10:00:00Z" },
+      { id: "at14", action: "Estado cambiado", previousValue: "Ingresado", newValue: "OK Supervisor", userId: "u3", userName: "Carlos López", timestamp: "2026-02-15T10:00:00Z" },
+      { id: "at14b", action: "Estado cambiado", previousValue: "OK Supervisor", newValue: "En proceso de pago", userId: "u3", userName: "Operador CCO", timestamp: "2026-02-16T09:00:00Z" },
     ],
   },
   {
@@ -139,11 +141,11 @@ const MOCK_EXPENSES: Expense[] = [
   },
   {
     id: "e12", lawFirmId: "lf6", proformaNum: 6002, segment: "Canales Indirectos", expenseType: "Honorarios",
-    amount: 280000, date: "2026-03-05", status: "En proceso de pago", description: "Honorarios canales indirectos",
+    amount: 280000, date: "2026-03-05", status: "OK Supervisor", description: "Honorarios canales indirectos",
     attachments: [], createdBy: "u2", createdAt: "2026-03-05T08:00:00Z",
     auditTrail: [
       { id: "at19", action: "Creado", newValue: "Ingresado", userId: "u2", userName: "Estudio Bancalari", timestamp: "2026-03-05T08:00:00Z" },
-      { id: "at20", action: "Estado cambiado", previousValue: "Ingresado", newValue: "En proceso de pago", userId: "u3", userName: "Operador CCO", timestamp: "2026-03-08T10:00:00Z" },
+      { id: "at20", action: "Estado cambiado", previousValue: "Ingresado", newValue: "OK Supervisor", userId: "u3", userName: "Operador CCO", timestamp: "2026-03-08T10:00:00Z" },
     ],
   },
   {
@@ -165,12 +167,12 @@ const MOCK_EXPENSES: Expense[] = [
   },
   {
     id: "e15", lawFirmId: "lf8", proformaNum: 8001, segment: "Canales Indirectos", expenseType: "Inicios Judiciales",
-    amount: 480000, date: "2026-03-01", status: "Ingresado Analista", description: "Inicios judiciales canales",
+    amount: 480000, date: "2026-03-01", status: "OK Analista", description: "Inicios judiciales canales",
     attachments: [{ id: "a5", name: "factura_ci.pdf", type: "pdf", size: 170000, uploadedBy: "u1", uploadedAt: now }],
     createdBy: "u1", createdAt: "2026-03-01T08:00:00Z",
     auditTrail: [
       { id: "at24", action: "Creado", newValue: "Ingresado", userId: "u1", userName: "Analista de Gastos", timestamp: "2026-03-01T08:00:00Z" },
-      { id: "at25", action: "Estado cambiado", previousValue: "Ingresado", newValue: "Ingresado Analista", userId: "u1", userName: "Analista de Gastos", timestamp: "2026-03-05T10:00:00Z" },
+      { id: "at25", action: "Estado cambiado", previousValue: "Ingresado", newValue: "OK Analista", userId: "u1", userName: "Analista de Gastos", timestamp: "2026-03-05T10:00:00Z" },
     ],
   },
   {
@@ -395,7 +397,7 @@ export const useAppStore = create<AppState>()(
       // Subir esta versión + agregar la migración correspondiente cada vez que se
       // sumen estudios/gastos nuevos al mock, para que quien ya tenga datos viejos
       // guardados en localStorage los reciba sin perder lo que generó en su sesión.
-      version: 2,
+      version: 3,
       migrate: (persistedState, version) => {
         const state = persistedState as { lawFirms?: LawFirm[]; expenses?: Expense[] };
         if (version < 2) {
@@ -406,6 +408,25 @@ export const useAppStore = create<AppState>()(
           const knownExpenseIds = new Set((state.expenses || []).map((e) => e.id));
           const missingExpenses = MOCK_EXPENSES.filter((e) => !knownExpenseIds.has(e.id));
           state.expenses = [...(state.expenses || []), ...missingExpenses];
+        }
+        if (version < 3) {
+          // Renombramos estados para que queden transparentes: "Ingresado Analista"
+          // (segundo OK del analista) -> "OK Analista", y "En proceso de pago"
+          // (OK del supervisor) -> "OK Supervisor".
+          const RENAME: Record<string, string> = {
+            "Ingresado Analista": "OK Analista",
+            "En proceso de pago": "OK Supervisor",
+          };
+          const renameStatus = (s?: string) => (s && RENAME[s]) || s;
+          state.expenses = (state.expenses || []).map((e) => ({
+            ...e,
+            status: (renameStatus(e.status) as PaymentStatus) || e.status,
+            auditTrail: e.auditTrail.map((entry) => ({
+              ...entry,
+              previousValue: renameStatus(entry.previousValue),
+              newValue: renameStatus(entry.newValue),
+            })),
+          }));
         }
         return state;
       },

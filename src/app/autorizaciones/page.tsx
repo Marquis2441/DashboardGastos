@@ -32,6 +32,7 @@ import {
   Briefcase,
   Clock,
   ShieldCheck,
+  Landmark,
   CheckCircle2,
   Filter,
   ChevronDown,
@@ -40,6 +41,70 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { StatusBadge } from "@/components/payment-status-dropdown";
+import type { PaymentStatus } from "@/lib/types";
+
+// Esta pantalla sirve tres colas distintas del mismo circuito, según quién entra:
+// - SUPERVISOR da el visto bueno final antes de derivar el gasto a pago.
+// - CCO primero carga el gasto en la plataforma como "En proceso de pago" (lo deriva
+//   al sector de pagos por mail, fuera del sistema) y después, cuando ese sector
+//   confirma que pagó, lo marca como "Pagado" acá.
+type Stage = "supervisor" | "cco_derivar" | "cco_pagar";
+
+const STAGES_BY_ROLE: Record<string, Stage[]> = {
+  SUPERVISOR: ["supervisor"],
+  CCO: ["cco_derivar", "cco_pagar"],
+  ADMIN: ["supervisor", "cco_derivar", "cco_pagar"],
+};
+
+const STAGE_CONFIG: Record<Stage, {
+  sourceStatus: PaymentStatus;
+  targetStatus: PaymentStatus;
+  title: string;
+  subtitle: string;
+  pendingLabel: string;
+  amountLabel: string;
+  actionLabel: string;
+  toggleLabel: string;
+  actionIcon: React.ElementType;
+  toastTitle: string;
+}> = {
+  supervisor: {
+    sourceStatus: "OK Analista",
+    targetStatus: "OK Supervisor",
+    title: "Aprobación de Supervisor",
+    subtitle: "Da el visto bueno final para derivar los gastos a pago",
+    pendingLabel: "Pendientes de aprobación",
+    amountLabel: "Monto a Aprobar",
+    actionLabel: "Aprobar",
+    toggleLabel: "Cola de Supervisor",
+    actionIcon: ShieldCheck,
+    toastTitle: "Gastos aprobados",
+  },
+  cco_derivar: {
+    sourceStatus: "OK Supervisor",
+    targetStatus: "En proceso de pago",
+    title: "Derivar a Pago",
+    subtitle: "Carga en la plataforma los gastos que se derivan al sector de pagos (por mail, fuera del sistema)",
+    pendingLabel: "Listos para derivar",
+    amountLabel: "Monto a Derivar",
+    actionLabel: "Derivar a Pago",
+    toggleLabel: "Cola de Derivación",
+    actionIcon: Clock,
+    toastTitle: "Gastos derivados a pago",
+  },
+  cco_pagar: {
+    sourceStatus: "En proceso de pago",
+    targetStatus: "Pagado",
+    title: "Gestión de Pagos",
+    subtitle: "Marca como pagados los gastos que el sector de pagos ya confirmó",
+    pendingLabel: "En proceso de pago",
+    amountLabel: "Monto a Marcar Pagado",
+    actionLabel: "Marcar como Pagado",
+    toggleLabel: "Cola de Pagos",
+    actionIcon: Landmark,
+    toastTitle: "Gastos marcados como pagados",
+  },
+};
 
 export default function AutorizacionesPage() {
   const lawFirms = useAppStore((s) => s.lawFirms);
@@ -52,11 +117,18 @@ export default function AutorizacionesPage() {
   const [filterSegment, setFilterSegment] = useState("all");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
+  const [stageOverride, setStageOverride] = useState<Stage | null>(null);
 
   const fmt = (val: number) => `$${val.toLocaleString("es-AR")}`;
 
-  // Solo ADMIN o CCO pueden ver esto
-  if (!currentUser || !["ADMIN", "CCO"].includes(currentUser.role)) {
+  const handleAttachmentClick = (attachmentName: string) => {
+    toast.info(`"${attachmentName}"`, {
+      description: "Este prototipo simula la carga de archivos: no hay almacenamiento real detrás, así que no hay nada que abrir todavía. En la versión productiva esto descargaría el archivo real.",
+    });
+  };
+
+  // Solo ADMIN, SUPERVISOR o CCO pueden ver esto
+  if (!currentUser || !["ADMIN", "SUPERVISOR", "CCO"].includes(currentUser.role)) {
     return (
       <AppShell>
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
@@ -65,15 +137,20 @@ export default function AutorizacionesPage() {
           </div>
           <div className="text-center">
             <h1 className="text-2xl font-bold text-foreground">Acceso Denegado</h1>
-            <p className="text-muted-foreground">Solo administradores o CCO pueden gestionar autorizaciones.</p>
+            <p className="text-muted-foreground">Solo Supervisor, CCO o administradores pueden gestionar autorizaciones.</p>
           </div>
         </div>
       </AppShell>
     );
   }
 
-  // Únicamente gastos validados ("Ingresado Analista") para autorizar a pago
-  const pendingExpenses = expenses.filter(e => e.status === "Ingresado Analista");
+  const availableStages = STAGES_BY_ROLE[currentUser.role] || [];
+  const stage: Stage = (stageOverride && availableStages.includes(stageOverride))
+    ? stageOverride
+    : availableStages[0];
+  const cfg = STAGE_CONFIG[stage];
+
+  const pendingExpenses = expenses.filter(e => e.status === cfg.sourceStatus);
 
   // Filter expenses
   const filteredExpenses = pendingExpenses.filter((exp) => {
@@ -109,25 +186,48 @@ export default function AutorizacionesPage() {
 
   const handleBulkAuthorize = () => {
     if (selectedIds.length === 0) return;
-    
-    bulkUpdateExpenseStatus(selectedIds, "En proceso de pago");
-    toast.success(`Gastos enviados a pago`, {
-      description: `Se han movido ${selectedIds.length} gastos a "En proceso de pago".`
+
+    bulkUpdateExpenseStatus(selectedIds, cfg.targetStatus);
+    toast.success(cfg.toastTitle, {
+      description: `Se han movido ${selectedIds.length} gastos a "${cfg.targetStatus}".`
     });
     setSelectedIds([]);
   };
+
+  const ActionIcon = cfg.actionIcon;
 
   return (
     <AppShell>
       <div className="flex flex-col min-h-screen animate-fade-in-up">
         {/* Header */}
         <PageHeader
-          title="Gestión de Autorizaciones"
-          subtitle="Firma y autoriza los gastos que se encuentran en lista de espera"
+          title={cfg.title}
+          subtitle={cfg.subtitle}
           showUser
         />
 
         <div className="p-4 md:p-6 lg:p-10 space-y-8 max-w-[1600px] mx-auto w-full">
+          {/* Elegir qué cola gestionar, cuando el rol tiene más de una */}
+          {availableStages.length > 1 && (
+            <div className="flex items-center gap-2 flex-wrap">
+              {availableStages.map((s) => {
+                const StageIcon = STAGE_CONFIG[s].actionIcon;
+                return (
+                  <Button
+                    key={s}
+                    variant={stage === s ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => { setStageOverride(s); setSelectedIds([]); }}
+                    className="gap-1.5 text-xs font-semibold"
+                  >
+                    <StageIcon className="w-3.5 h-3.5" />
+                    {STAGE_CONFIG[s].toggleLabel}
+                  </Button>
+                );
+              })}
+            </div>
+          )}
+
           {/* Summary Cards - More Compact */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
              <Card className="bg-card border-border shadow-sm border rounded-md">
@@ -137,7 +237,7 @@ export default function AutorizacionesPage() {
                          <Clock className="w-4 h-4 text-warning" />
                       </div>
                       <div>
-                         <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Pendientes</p>
+                         <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">{cfg.pendingLabel}</p>
                          <p className="text-xl font-bold text-foreground">{pendingExpenses.length}</p>
                       </div>
                    </div>
@@ -147,10 +247,10 @@ export default function AutorizacionesPage() {
                 <CardContent className="p-4">
                    <div className="flex items-center gap-3">
                       <div className="w-9 h-9 rounded-md bg-muted flex items-center justify-center shrink-0">
-                         <ShieldCheck className="w-4 h-4 text-foreground" />
+                         <ActionIcon className="w-4 h-4 text-foreground" />
                       </div>
                       <div>
-                         <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Monto a Autorizar</p>
+                         <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">{cfg.amountLabel}</p>
                          <p className="text-xl font-bold text-foreground tabular-nums font-mono">{fmt(totalFiltered)}</p>
                       </div>
                    </div>
@@ -162,8 +262,8 @@ export default function AutorizacionesPage() {
                   disabled={selectedIds.length === 0}
                   className="w-full h-12 text-sm font-semibold gap-2 transition-all disabled:opacity-30 rounded-md"
                 >
-                   <ShieldCheck className="w-4 h-4" />
-                   Autorizar {selectedIds.length > 0 ? `(${selectedIds.length})` : ""}
+                   <ActionIcon className="w-4 h-4" />
+                   {cfg.actionLabel} {selectedIds.length > 0 ? `(${selectedIds.length})` : ""}
                 </Button>
              </div>
           </div>
@@ -333,9 +433,15 @@ export default function AutorizacionesPage() {
                           <TableCell>
                              <div className="flex justify-center gap-1.5">
                                 {exp.attachments.length > 0 ? exp.attachments.map(att => (
-                                   <div key={att.id} className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center border border-border shadow-sm hover:scale-110 transition-transform cursor-pointer">
+                                   <button
+                                     key={att.id}
+                                     type="button"
+                                     title={att.name}
+                                     onClick={() => handleAttachmentClick(att.name)}
+                                     className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center border border-border shadow-sm hover:scale-110 transition-transform cursor-pointer"
+                                   >
                                       {att.type === 'pdf' ? <FileText className="w-4 h-4 text-red-500" /> : <FileSpreadsheet className="w-4 h-4 text-emerald-500" />}
-                                   </div>
+                                   </button>
                                 )) : <span className="text-muted-foreground">—</span>}
                              </div>
                           </TableCell>
@@ -397,9 +503,15 @@ export default function AutorizacionesPage() {
                          <div className="flex items-center justify-between">
                             <div className="flex gap-1.5">
                                {exp.attachments.map(att => (
-                                  <div key={att.id} className="w-6 h-6 rounded-md bg-muted flex items-center justify-center border border-border">
+                                  <button
+                                    key={att.id}
+                                    type="button"
+                                    title={att.name}
+                                    onClick={() => handleAttachmentClick(att.name)}
+                                    className="w-6 h-6 rounded-md bg-muted flex items-center justify-center border border-border cursor-pointer hover:opacity-70 transition-opacity"
+                                  >
                                      {att.type === 'pdf' ? <FileText className="w-3 h-3 text-red-500" /> : <FileSpreadsheet className="w-3 h-3 text-emerald-500" />}
-                                  </div>
+                                  </button>
                                ))}
                             </div>
                             <p className="text-base font-black text-foreground">{fmt(exp.amount)}</p>

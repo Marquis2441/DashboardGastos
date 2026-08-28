@@ -65,6 +65,15 @@ export function AppSidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed }: A
         { href: "/mediciones", label: "Mediciones", icon: BarChart3 },
       ];
     }
+    if (currentUser?.role === "SUPERVISOR" || currentUser?.role === "CCO") {
+      return [
+        { href: "/", label: "Dashboard", icon: LayoutDashboard },
+        { href: "/estudios", label: "Estudios", icon: Building2 },
+        { href: "/gastos", label: "Gastos", icon: Receipt },
+        { href: "/autorizaciones", label: "Autorizaciones", icon: ShieldCheck },
+        { href: "/mediciones", label: "Mediciones", icon: BarChart3 },
+      ];
+    }
     return NAV_ITEMS;
   };
 
@@ -170,8 +179,8 @@ export function AppSidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed }: A
             <h3 className="px-2 text-[10px] font-semibold text-muted-foreground/70 uppercase tracking-widest mb-2 flex items-center gap-2">
               <Glasses className="w-3 h-3" /> Modo Desarrollo
             </h3>
-            <div className="grid grid-cols-2 gap-2">
-              {(["ANALISTA", "ESTUDIO", "CCO", "ADMIN"] as Role[]).map((r) => (
+            <div className="grid grid-cols-3 gap-2">
+              {(["ANALISTA", "ESTUDIO", "SUPERVISOR", "CCO", "ADMIN"] as Role[]).map((r) => (
                 <button
                   key={r}
                   onClick={() => {

@@ -7,6 +7,15 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { useAppStore } from "@/lib/store";
 import { toast } from "sonner";
 import { BrandLogo } from "./brand-logo";
+import type { Role } from "@/lib/types";
+
+const ROLE_LABELS: Record<Role, string> = {
+  ADMIN: "Admin",
+  CCO: "CCO",
+  SUPERVISOR: "Supervisor",
+  ANALISTA: "Analista",
+  ESTUDIO: "Estudio",
+};
 
 interface PageHeaderProps {
   title: string;
@@ -26,7 +35,7 @@ export function PageHeader({ title, subtitle, showUser = false }: PageHeaderProp
 
   // Logic for specific notifications per role (cada una con un id único para poder marcarla como vista)
   const inProcessExpenses = (currentUser?.role === "ADMIN")
-    ? expenses.filter(e => e.status === "En proceso de pago" && !isDismissed(`inproc-${e.id}`))
+    ? expenses.filter(e => e.status === "OK Supervisor" && !isDismissed(`inproc-${e.id}`))
     : [];
 
   const billedExpenses = (currentUser?.role === "CCO")
@@ -80,7 +89,7 @@ export function PageHeader({ title, subtitle, showUser = false }: PageHeaderProp
       });
 
       Object.entries(byFirm).forEach(([firm, count]) => {
-        toast.info(`ADMIN: ${count} gastos "En proceso de pago"`, {
+        toast.info(`ADMIN: ${count} gastos "OK Supervisor"`, {
           description: `Del estudio: ${firm}`,
           duration: 6000,
         });
@@ -175,14 +184,14 @@ export function PageHeader({ title, subtitle, showUser = false }: PageHeaderProp
                   {currentUser.name}
                 </p>
                 <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter mt-0.5">
-                  {currentUser.role === 'ADMIN' ? 'Admin' : currentUser.role === 'CCO' ? 'CCO' : 'Estudio'}
+                  {ROLE_LABELS[currentUser.role] || currentUser.role}
                 </p>
               </div>
             </div>
           )}
         </div>
 
-        {currentUser?.role !== "CCO" && (
+        {!["CCO", "SUPERVISOR"].includes(currentUser?.role || "") && (
           <div className="flex-1 md:flex-none flex justify-end">
             <ExpenseFormDialog />
           </div>

@@ -29,7 +29,14 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import type { Segment, ExpenseType, Expense } from "@/lib/types";
+
+function handleAttachmentClick(attachmentName: string) {
+  toast.info(`"${attachmentName}"`, {
+    description: "Este prototipo simula la carga de archivos: no hay almacenamiento real detrás, así que no hay nada que abrir todavía. En la versión productiva esto descargaría el archivo real.",
+  });
+}
 
 const SEGMENT_CONFIG: Record<Segment, { icon: React.ElementType; color: string }> = {
   Personas: { icon: Users, color: "#3B82F6" },
@@ -91,13 +98,19 @@ function ExpenseTable({ expenses, lawFirms }: { expenses: Expense[]; lawFirms: R
               <TableCell>
                 <div className="flex gap-1">
                   {exp.attachments.map((att) => (
-                    <div key={att.id} title={att.name}>
+                    <button
+                      key={att.id}
+                      type="button"
+                      title={att.name}
+                      onClick={() => handleAttachmentClick(att.name)}
+                      className="cursor-pointer hover:opacity-70 transition-opacity"
+                    >
                       {att.type === "pdf" ? (
                         <FileText className="w-4 h-4 text-red-400" />
                       ) : (
                         <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
                       )}
-                    </div>
+                    </button>
                   ))}
                   {exp.attachments.length === 0 && (
                     <span className="text-xs text-muted-foreground">—</span>

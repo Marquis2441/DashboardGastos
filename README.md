@@ -5,19 +5,28 @@ Este proyecto es un **prototipo funcional** desarrollado desde el área de Cobra
 ## Lógica de negocio
 
 ### Roles del sistema
-- **ANALISTA**: usuario interno de Cobranzas. Carga y gestiona los gastos.
-- **ESTUDIO**: representante de un estudio jurídico externo. Tiene visibilidad acotada a su propio estudio (`lawFirmId`).
-- **CCO**: operador de Centro de Control de Operaciones (o el área que corresponda). Interviene en el circuito de aprobación/pago.
-- **ADMIN**: administrador general, visibilidad y permisos totales.
-
-Falta definir: qué acción puede hacer cada rol sobre cada estado (por ejemplo, ¿quién puede pasar un gasto de "Facturado" a "En proceso de pago"? ¿Solo CCO, o también Admin?).
+- **ESTUDIO**: representante de un estudio jurídico externo. Visibilidad acotada a su propio estudio (`lawFirmId`). Carga gastos (siempre en estado `Ingresado`, no puede elegir otro estado al cargar) y, una vez que el analista le da el OK, es quien factura.
+- **ANALISTA**: usuario interno de Cobranzas. Es el control de calidad/documental del circuito: dos validaciones distintas, antes y después de que el estudio facture (ver ciclo de vida abajo). También puede rechazar un gasto en cualquier punto.
+- **SUPERVISOR**: da el visto bueno final antes de derivar el gasto a pago. Es el paso que faltaba documentar en la primera versión de este README.
+- **CCO**: deriva el gasto aprobado al sector de pagos (por fuera del sistema, hoy por mail) y, una vez que ese sector confirma que pagó, lo marca como `Pagado` en el sistema.
+- **ADMIN**: administrador general, visibilidad y permisos totales sobre todos los roles y estados.
 
 ### Ciclo de vida de un gasto (estado)
-Un gasto recorre los siguientes estados, en este orden esperado:
+Un gasto recorre los siguientes estados, en este orden, con el rol responsable de cada transición:
 
-`Ingresado` → `A facturar` → `Facturado` → `Ingresado Analista` → `En proceso de pago` → `Pagado`
+| De | A | Quién | Acción |
+|---|---|---|---|
+| — | `Ingresado` | ESTUDIO | Carga el gasto (único estado posible al crear) |
+| `Ingresado` | `A facturar` | ANALISTA | Primer OK: valida que corresponda pagarlo y que la documentación esté en orden |
+| `A facturar` | `Facturado` | ESTUDIO | Adjunta la factura real |
+| `Facturado` | `OK Analista` | ANALISTA | Segundo OK: valida la factura ya adjuntada |
+| `OK Analista` | `OK Supervisor` | SUPERVISOR | Visto bueno final antes de derivar a pago |
+| `OK Supervisor` | `En proceso de pago` | CCO | Carga el gasto en la plataforma como derivado al sector de pagos (la derivación en sí es por mail, fuera del sistema) |
+| `En proceso de pago` | `Pagado` | CCO | Cuando el sector de pagos confirma que efectivizó el pago, CCO lo marca acá |
 
-Con un estado alternativo `Rechazado`, que puede darse en cualquier punto del circuito.
+Con un estado alternativo `Rechazado`, que el ANALISTA puede aplicar en cualquier punto del circuito (por ejemplo, documentación mal cargada o un gasto que no corresponde abonar) — es la razón por la que el estudio nunca factura directamente sin el OK previo del analista: evita una desprolijidad impositiva frente al fisco.
+
+Falta definir: si ADMIN puede saltear pasos del circuito manualmente (hoy tiene permiso total sobre cualquier transición) y si eso debería quedar igual de auditado que el resto, o requerir una justificación explícita.
 
 
 ### Estudios jurídicos y Orden de Compra (OC)
@@ -31,7 +40,7 @@ Falta definir: ¿el bloqueo es duro (no deja cargar) o blando (alerta pero permi
 
 ### Clasificación de gastos
 Cada gasto se clasifica por:
-- **Segmento**: `Personas` o `Empresas`.
+- **Segmento**: `Personas`, `Empresas`, `Retail` o `Canales Indirectos`.
 - **Tipo de gasto**: `Tasa de Justicia`, `Honorarios`, `Inicios Judiciales`.
 - **Estudio jurídico** asociado, **número de proforma**, **monto**, **fecha**, **descripción**.
 

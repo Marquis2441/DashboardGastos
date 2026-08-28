@@ -26,7 +26,7 @@ export const createExpenseSchema = (availableBalance: number) =>
       .positive("El monto debe ser mayor a 0")
       .max(availableBalance, `El monto supera el saldo disponible ($${availableBalance.toLocaleString("es-AR")})`),
     description: z.string().optional(),
-    status: z.enum(["Ingresado", "En proceso de pago", "Pagado", "Rechazado"], {
+    status: z.enum(["Ingresado", "OK Supervisor", "En proceso de pago", "Pagado", "Rechazado"], {
       error: "Selecciona un estado",
     }),
   });
@@ -39,5 +39,5 @@ export type ExpenseFormValues = {
   date: string;
   amount: number;
   description?: string;
-  status: "Ingresado" | "En proceso de pago" | "Pagado" | "Rechazado";
+  status: "Ingresado" | "OK Supervisor" | "En proceso de pago" | "Pagado" | "Rechazado";
 };

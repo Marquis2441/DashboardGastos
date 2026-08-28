@@ -42,12 +42,12 @@ export default function DashboardPage() {
   const fmt = (val: number) => `$${val.toLocaleString("es-AR")}`;
 
   useEffect(() => {
-    if (currentUser && !["ADMIN", "ANALISTA"].includes(currentUser.role)) {
+    if (currentUser && !["ADMIN", "ANALISTA", "CCO", "SUPERVISOR"].includes(currentUser.role)) {
       router.replace("/gastos");
     }
   }, [currentUser, router]);
 
-  if (!currentUser || !["ADMIN", "ANALISTA"].includes(currentUser.role)) {
+  if (!currentUser || !["ADMIN", "ANALISTA", "CCO", "SUPERVISOR"].includes(currentUser.role)) {
     return (
       <AppShell>
         <div className="flex items-center justify-center h-[60vh]">

@@ -70,11 +70,9 @@ export default function GastosPage() {
 
   let roleExpenses = expenses;
   if (currentUser?.role === "ESTUDIO") {
-    const allowedStatuses: PaymentStatus[] = ["Ingresado", "A facturar", "Facturado", "En proceso de pago"];
-    roleExpenses = expenses.filter(e => 
-      e.lawFirmId === currentUser.lawFirmId && 
-      allowedStatuses.includes(e.status)
-    );
+    // El estudio ve el historial completo de sus propios gastos, en cualquier
+    // estado (incluye "En proceso de pago" y "Pagado" una vez que avanzan por el circuito).
+    roleExpenses = expenses.filter(e => e.lawFirmId === currentUser.lawFirmId);
   }
 
   // Filter expenses
@@ -121,13 +119,20 @@ export default function GastosPage() {
     setSelectedIds([]);
   };
 
+  const handleAttachmentClick = (attachmentName: string) => {
+    toast.info(`"${attachmentName}"`, {
+      description: "Este prototipo simula la carga de archivos: no hay almacenamiento real detrás, así que no hay nada que abrir todavía. En la versión productiva esto descargaría el archivo real.",
+    });
+  };
+
   const getStatusIcon = (status: PaymentStatus) => {
     switch (status) {
       case "Pagado": return <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />;
       case "Rechazado": return <XCircle className="w-3.5 h-3.5 text-rose-500" />;
       case "Facturado": return <CheckCircle2 className="w-3.5 h-3.5 text-indigo-500" />;
       case "A facturar": return <FileDown className="w-3.5 h-3.5 text-purple-500" />;
-      case "Ingresado Analista": return <ShieldCheck className="w-3.5 h-3.5 text-blue-500" />;
+      case "OK Analista": return <ShieldCheck className="w-3.5 h-3.5 text-blue-500" />;
+      case "OK Supervisor": return <ShieldCheck className="w-3.5 h-3.5 text-cyan-500" />;
       case "En proceso de pago": return <Clock className="w-3.5 h-3.5 text-amber-500 animate-spin" />;
       default: return <Clock className="w-3.5 h-3.5 text-blue-500" />;
     }
@@ -138,8 +143,8 @@ export default function GastosPage() {
       <div className="flex flex-col min-h-screen animate-fade-in-up">
         {/* Header */}
         <PageHeader
-          title={currentUser?.role === "CCO" ? "Aprobación de Gastos" : "Historial de Gastos"}
-          subtitle={currentUser?.role === "CCO" ? "Gastos ingresados pendientes de aprobación" : "Todos los gastos registrados"}
+          title="Historial de Gastos"
+          subtitle="Todos los gastos registrados"
           showUser
         />
 
@@ -191,28 +196,30 @@ export default function GastosPage() {
                 {/* Collapsible Filters */}
                 {showFilters && (
                   <div className="grid grid-cols-1 xs:grid-cols-2 lg:flex lg:flex-wrap items-end gap-3 pt-3 border-t border-border animate-in fade-in slide-in-from-top-2">
-                    <div className="flex flex-col gap-1.5">
-                      <span className="text-[9px] md:text-[10px] font-bold text-muted-foreground uppercase ml-1">Estudio</span>
-                      <Select 
-                        value={filterFirm === "all" ? "" : filterFirm} 
-                        onValueChange={(val: string | null) => setFilterFirm(val || "all")}
-                      >
-                        <SelectTrigger className="h-8 md:h-9 w-full lg:w-[200px] cursor-pointer bg-background text-xs">
-                          <div className="flex items-center gap-2">
-                            <Building2 className="w-3 h-3 text-muted-foreground" />
-                            <SelectValue placeholder="Estudio" />
-                          </div>
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="" className="cursor-pointer">Todos los estudios</SelectItem>
-                          {lawFirms.map((lf) => (
-                            <SelectItem key={lf.id} value={lf.id} className="cursor-pointer">
-                              {lf.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+                    {currentUser?.role !== "ESTUDIO" && (
+                      <div className="flex flex-col gap-1.5">
+                        <span className="text-[9px] md:text-[10px] font-bold text-muted-foreground uppercase ml-1">Estudio</span>
+                        <Select
+                          value={filterFirm === "all" ? "" : filterFirm}
+                          onValueChange={(val: string | null) => setFilterFirm(val || "all")}
+                        >
+                          <SelectTrigger className="h-8 md:h-9 w-full lg:w-[200px] cursor-pointer bg-background text-xs">
+                            <div className="flex items-center gap-2">
+                              <Building2 className="w-3 h-3 text-muted-foreground" />
+                              <SelectValue placeholder="Estudio" />
+                            </div>
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="" className="cursor-pointer">Todos los estudios</SelectItem>
+                            {lawFirms.map((lf) => (
+                              <SelectItem key={lf.id} value={lf.id} className="cursor-pointer">
+                                {lf.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
 
                     <div className="flex flex-col gap-1.5">
                       <span className="text-[9px] md:text-[10px] font-bold text-muted-foreground uppercase ml-1">Estado</span>
@@ -231,7 +238,8 @@ export default function GastosPage() {
                            <SelectItem value="Ingresado" className="cursor-pointer">Ingresado (Estudio)</SelectItem>
                            <SelectItem value="A facturar" className="cursor-pointer">A facturar</SelectItem>
                            <SelectItem value="Facturado" className="cursor-pointer">Facturado</SelectItem>
-                           <SelectItem value="Ingresado Analista" className="cursor-pointer">Ingresado (Analista)</SelectItem>
+                           <SelectItem value="OK Analista" className="cursor-pointer">OK Analista</SelectItem>
+                           <SelectItem value="OK Supervisor" className="cursor-pointer">OK Supervisor</SelectItem>
                            <SelectItem value="En proceso de pago" className="cursor-pointer">En proceso de pago</SelectItem>
                            <SelectItem value="Pagado" className="cursor-pointer">Pagado</SelectItem>
                            <SelectItem value="Rechazado" className="cursor-pointer">Rechazado</SelectItem>
@@ -300,11 +308,14 @@ export default function GastosPage() {
                           <DropdownMenuItem onClick={() => handleBulkStatusUpdate("A facturar")} className="cursor-pointer gap-2">
                             <FileDown className="w-4 h-4 text-purple-500" /> Marcar A facturar
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleBulkStatusUpdate("Ingresado Analista")} className="cursor-pointer gap-2">
-                            <ShieldCheck className="w-4 h-4 text-blue-500" /> Marcar como Validado (Ingresado)
+                          <DropdownMenuItem onClick={() => handleBulkStatusUpdate("OK Analista")} className="cursor-pointer gap-2">
+                            <ShieldCheck className="w-4 h-4 text-blue-500" /> Marcar OK Analista
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleBulkStatusUpdate("OK Supervisor")} className="cursor-pointer gap-2">
+                            <ShieldCheck className="w-4 h-4 text-cyan-500" /> Marcar OK Supervisor
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleBulkStatusUpdate("En proceso de pago")} className="cursor-pointer gap-2">
-                            <Clock className="w-4 h-4 text-amber-500" /> En proceso de pago
+                            <Clock className="w-4 h-4 text-amber-500" /> Marcar En proceso de pago
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleBulkStatusUpdate("Pagado")} className="cursor-pointer gap-2">
                             <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Marcar como Pagado
@@ -431,13 +442,19 @@ export default function GastosPage() {
                                 <TableCell>
                                   <div className="flex gap-1">
                                     {exp.attachments.map((att) => (
-                                      <div key={att.id} title={att.name}>
+                                      <button
+                                        key={att.id}
+                                        type="button"
+                                        title={att.name}
+                                        onClick={() => handleAttachmentClick(att.name)}
+                                        className="cursor-pointer hover:opacity-70 transition-opacity"
+                                      >
                                         {att.type === "pdf" ? (
                                           <FileText className="w-4 h-4 text-red-400" />
                                         ) : (
                                           <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
                                         )}
-                                      </div>
+                                      </button>
                                     ))}
                                     {exp.attachments.length === 0 && (
                                       <span className="text-xs text-muted-foreground">—</span>
@@ -524,9 +541,15 @@ export default function GastosPage() {
                         <div className="flex items-center justify-between">
                            <div className="flex gap-1.5">
                              {exp.attachments.map((att) => (
-                                <div key={att.id} className="w-7 h-7 rounded-lg bg-muted flex items-center justify-center border border-border">
+                                <button
+                                  key={att.id}
+                                  type="button"
+                                  title={att.name}
+                                  onClick={() => handleAttachmentClick(att.name)}
+                                  className="w-7 h-7 rounded-lg bg-muted flex items-center justify-center border border-border cursor-pointer hover:opacity-70 transition-opacity"
+                                >
                                   {att.type === "pdf" ? <FileText className="w-3.5 h-3.5 text-red-400" /> : <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-400" />}
-                                </div>
+                                </button>
                              ))}
                              {exp.attachments.length === 0 && <span className="text-[10px] text-muted-foreground">Sin adjuntos</span>}
                            </div>

@@ -38,10 +38,13 @@ const STATUS_CONFIG: Record<string, { icon: React.ElementType; className: string
     icon: CheckCircle2,
     className: "bg-indigo-500/15 text-indigo-500 border-indigo-500/20 hover:bg-indigo-500/25",
   },
-  "Ingresado Analista": {
+  "OK Analista": {
     icon: ShieldCheck,
-    label: "Ingresado",
     className: "bg-blue-600/15 text-blue-600 border-blue-600/20 hover:bg-blue-600/25",
+  },
+  "OK Supervisor": {
+    icon: ShieldCheck,
+    className: "bg-cyan-500/15 text-cyan-500 border-cyan-500/20 hover:bg-cyan-500/25",
   },
   "En proceso de pago": {
     icon: Loader2,
@@ -55,17 +58,6 @@ const STATUS_CONFIG: Record<string, { icon: React.ElementType; className: string
     icon: XCircle,
     className: "bg-red-500/15 text-red-400 border-red-500/20 hover:bg-red-500/25",
   },
-  // Legacy mappings for stability
-  "En Proceso de Pago": {
-    icon: Loader2,
-    label: "En proceso de pago",
-    className: "bg-amber-500/15 text-amber-400 border-amber-500/20 hover:bg-amber-500/25",
-  } as any,
-  "Autorizado": {
-    icon: ShieldCheck,
-    label: "Aprobado",
-    className: "bg-indigo-500/15 text-indigo-500 border-indigo-500/20 hover:bg-indigo-500/25",
-  } as any,
 };
 
 const FALLBACK_CONFIG = {
@@ -78,7 +70,8 @@ const ALL_STATUSES: PaymentStatus[] = [
   "Ingresado",
   "A facturar",
   "Facturado",
-  "Ingresado Analista",
+  "OK Analista",
+  "OK Supervisor",
   "En proceso de pago",
   "Pagado",
   "Rechazado",
@@ -146,7 +139,7 @@ export function PaymentStatusDropdown({
             {ALL_STATUSES
               .filter(status => {
                 if (currentUser?.role === "ESTUDIO") {
-                  return ["Ingresado", "A facturar", "Facturado", "En proceso de pago"].includes(status);
+                  return ["Ingresado", "A facturar", "Facturado", "OK Supervisor", "En proceso de pago"].includes(status);
                 }
                 return true;
               })
@@ -165,13 +158,20 @@ export function PaymentStatusDropdown({
 
               if (currentUser?.role === "ANALISTA") {
                 if (status === "A facturar" && currentStatus === "Ingresado") isOptionDisabled = false;
-                if (status === "Ingresado Analista" && currentStatus === "Facturado") isOptionDisabled = false;
+                if (status === "OK Analista" && currentStatus === "Facturado") isOptionDisabled = false;
                 if (status === "Rechazado") isOptionDisabled = false;
               }
 
+              if (currentUser?.role === "SUPERVISOR") {
+                // Visto bueno final antes de derivar el pago (reemplaza lo que antes hacía CCO acá).
+                if (status === "OK Supervisor" && currentStatus === "OK Analista") isOptionDisabled = false;
+              }
+
               if (currentUser?.role === "CCO") {
-                if (status === "En proceso de pago" && currentStatus === "Ingresado Analista") isOptionDisabled = false;
-                if (status === "Pagado" && (currentStatus === "En proceso de pago" || currentStatus === "Ingresado Analista")) isOptionDisabled = false;
+                // Carga el gasto en la plataforma como derivado a pago...
+                if (status === "En proceso de pago" && currentStatus === "OK Supervisor") isOptionDisabled = false;
+                // ...y cierra el circuito una vez que el otro sector confirma que lo pagó (por fuera del sistema).
+                if (status === "Pagado" && currentStatus === "En proceso de pago") isOptionDisabled = false;
               }
 
               if (isActive) isOptionDisabled = true;
