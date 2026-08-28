@@ -41,7 +41,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex bg-background font-sans animate-in fade-in duration-700">
 
       {/* Left Column - Form */}
-      <div className="w-full lg:w-[45%] xl:w-[40%] flex flex-col justify-center items-center p-8 bg-background z-10">
+      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-8 bg-background z-10">
 
         <div className="w-full max-w-[380px] flex flex-col">
 
@@ -132,16 +132,19 @@ export default function LoginPage() {
       </div>
 
       {/* Right Column - Image */}
-      <div className="hidden lg:block lg:w-[55%] xl:w-[60%] relative overflow-hidden bg-slate-100">
+      <div className="hidden lg:block lg:w-1/2 relative overflow-hidden bg-slate-100">
         <Image
           src="/login-bg-v2.png"
           alt="Corporate Building Background"
           fill
-          className="object-cover object-center animate-in fade-in zoom-in-95 duration-1000"
+          // La fuente es de baja resolución (640x640) estirada sobre un panel grande;
+          // el overlay de abajo + un poco más de saturación/oscurecido ayudan a
+          // disimular el pixelado sin recurrir a blur (probado, molestaba a la vista).
+          className="object-cover object-center saturate-[1.1] brightness-95 animate-in fade-in zoom-in-95 duration-1000"
           priority
         />
-        {/* Subtle overlay to enhance contrast if needed */}
-        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+        {/* Overlay para reforzar contraste y disimular la baja resolución de la foto */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-black/5 to-black/10 pointer-events-none" />
       </div>
 
     </div>
